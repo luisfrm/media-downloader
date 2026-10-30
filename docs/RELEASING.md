@@ -13,10 +13,10 @@ The tag is created by CI, not by your machine. If a build fails, no tag is left 
 ## Day-to-day
 
 ```bash
-pnpm dev        # desktop app with hot reload
-pnpm dev        # (same) Vite + Tauri
-pnpm check      # frontend build + typecheck + TS tests + YAML lint + Rust tests
-pnpm test:e2e   # Playwright (web, no network)
+pnpm tauri dev   # desktop app with hot reload
+pnpm dev         # UI only, in the browser
+pnpm check       # frontend build + typecheck + TS tests + YAML lint + Rust tests
+pnpm test:e2e    # Playwright (web, no network)
 ```
 
 ## Publish a version
