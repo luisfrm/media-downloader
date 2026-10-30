@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="es"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_dashboard" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@100..900&family=Inter:wght@100..900&display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={darkMode:"class",theme:{extend:{colors:{"on-error-container":"#ffdad6","background":"#0d1320","on-secondary":"#002a78","inverse-surface":"#dde2f5","on-tertiary-fixed":"#001f26","surface":"#0d1320","tertiary":"#cdf3ff","on-primary-fixed-variant":"#004f58","tertiary-container":"#60e1ff","on-surface":"#dde2f5","surface-container-low":"#161b29","primary":"#c3f5ff","secondary":"#b4c5ff","secondary-fixed":"#dbe1ff","primary-fixed-dim":"#00daf3","outline":"#849396","surface-container":"#1a1f2d","primary-fixed":"#9cf0ff","inverse-primary":"#006875","on-error":"#690005","error-container":"#93000a","on-tertiary-container":"#006273","on-tertiary-fixed-variant":"#004e5c","surface-container-high":"#242a38","surface-container-highest":"#2f3543","on-background":"#dde2f5","tertiary-fixed":"#acedff","on-primary-container":"#00626e","on-secondary-container":"#cdd7ff","on-primary-fixed":"#001f24","outline-variant":"#3b494c","surface-container-lowest":"#080e1b","surface-bright":"#333948","on-primary":"#00363d","on-secondary-fixed-variant":"#003ea8","surface-tint":"#00daf3","tertiary-fixed-dim":"#4cd7f6","on-secondary-fixed":"#00174b","error":"#ffb4ab","secondary-fixed-dim":"#b4c5ff","primary-container":"#00e5ff","surface-variant":"#2f3543","on-surface-variant":"#bac9cc","secondary-container":"#0053db","inverse-on-surface":"#2a303f","surface-dim":"#0d1320","on-tertiary":"#003640"},borderRadius:{DEFAULT:"0.125rem",lg:"0.25rem",xl:"0.5rem",full:"0.75rem"},spacing:{gutter:"1rem","space-2xl":"2rem","margin-compact":"1rem","space-md":"0.75rem","space-xl":"1.5rem","space-2xs":"0.125rem","gutter-compact":"0.75rem","space-sm":"0.5rem",margin:"1.5rem","space-xs":"0.25rem","space-lg":"1rem"},fontFamily:{"body-lg":["Inter"],"body-md":["Inter"],"headline-sm":["Geist"],"data-mono-sm":["JetBrains Mono"],"headline-md":["Geist"],"headline-xl":["Geist"],"label-lg":["Inter"],"label-md":["Inter"],"headline-lg":["Geist"],"body-sm":["Inter"],"data-mono":["JetBrains Mono"]},fontSize:{"body-lg":["15px",{lineHeight:"24px",fontWeight:"400"}],"body-md":["13px",{lineHeight:"20px",fontWeight:"400"}],"headline-sm":["15px",{lineHeight:"22px",fontWeight:"500"}],"data-mono-sm":["10px",{lineHeight:"14px",fontWeight:"400"}],"headline-md":["18px",{lineHeight:"26px",letterSpacing:"-0.01em",fontWeight:"600"}],"headline-xl":["32px",{lineHeight:"40px",letterSpacing:"-0.02em",fontWeight:"600"}],"label-lg":["13px",{lineHeight:"18px",letterSpacing:"0.01em",fontWeight:"500"}],"label-md":["11px",{lineHeight:"16px",letterSpacing:"0.02em",fontWeight:"500"}],"headline-lg":["24px",{lineHeight:"32px",letterSpacing:"-0.015em",fontWeight:"600"}],"body-sm":["12px",{lineHeight:"18px",fontWeight:"400"}],"data-mono":["12px",{lineHeight:"16px",fontWeight:"500"}]}}}};</script></head><body class="bg-background font-body-md text-on-surface antialiased select-none"><aside class="fixed left-0 top-0 h-full w-64 bg-surface-container-low/95 backdrop-blur-xl z-50 flex flex-col justify-between shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="flex flex-col"><div class="h-14 px-space-md flex items-center justify-between"><div class="flex items-center gap-space-sm"><img alt="StreamGrab Logo" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/AEtjO1WGL6TtGmQa9jkzMbBXkUaLHMRLscV2C33z-x92zJ88Gg4GTMr7M0lLg0hXFrg3ZCxZrrZdVBpMftlDEZOVg5qkTBn5Od8xxfywebhp4SpoKMZq3ZECdOj69E8iT9DMdwwbxNbnHMP4-CkarYqM6_lKt0I1mVL-l_df9PceSj36ZrYYYox6p-X86PwQF-sCIrO9Lk088NtW3tbbTxQ17Dso2WFpQuNCK9RShy7p4MUf"/><span class="font-headline-md text-headline-md tracking-tight text-on-surface">StreamGrab</span></div><button class="w-8 h-8 rounded-lg flex items-center justify-center text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" type="button"><span class="material-symbols-outlined text-[18px]">menu_open</span></button></div><nav class="flex flex-col gap-space-xs px-space-sm mt-space-sm" data-active-classes="bg-secondary-container text-on-secondary-container font-headline-sm"><a class="flex items-center justify-between px-space-md py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="descargar-inicio" href="#"><div class="flex items-center gap-space-md"><span class="material-symbols-outlined text-[18px]">download</span><span class="font-label-lg text-label-lg">Descargar</span></div><span class="material-symbols-outlined text-[14px] text-primary-fixed-dim">bolt</span></a><a class="flex items-center justify-between px-space-md py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="cola-de-descargas" href="#"><div class="flex items-center gap-space-md"><span class="material-symbols-outlined text-[18px]">checklist</span><span class="font-label-lg text-label-lg">Cola de Descargas</span></div><span class="px-space-xs py-space-2xs bg-primary-container text-on-primary-container font-data-mono-sm text-data-mono-sm rounded-full">3 activas</span></a><a class="flex items-center gap-space-md px-space-md py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="historial-biblioteca" href="#"><span class="material-symbols-outlined text-[18px]">folder_special</span><span class="font-label-lg text-label-lg">Historial & Biblioteca</span></a><a class="flex items-center gap-space-md px-space-md py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="conversor-de-formatos" href="#"><span class="material-symbols-outlined text-[18px]">sync_saved_locally</span><span class="font-label-lg text-label-lg">Conversor de Formatos</span></a><a class="flex items-center gap-space-md px-space-md py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" data-path="ajustes" href="#"><span class="material-symbols-outlined text-[18px]">settings</span><span class="font-label-lg text-label-lg">Ajustes</span></a></nav></div><div class="p-space-sm flex flex-col gap-space-xs"><div class="p-space-sm rounded-lg bg-surface-container flex flex-col gap-space-xs"><div class="flex items-center justify-between"><div class="flex items-center gap-space-xs text-on-surface-variant"><span class="material-symbols-outlined text-[14px]">hard_drive</span><span class="font-label-md text-label-md">Almacenamiento</span></div><span class="font-data-mono-sm text-data-mono-sm text-primary">248 GB libres</span></div><div class="w-full h-1 bg-surface-container-highest rounded-full overflow-hidden"><div class="h-full bg-primary-fixed-dim rounded-full w-2/3"></div></div><span class="font-body-sm text-body-sm text-on-surface-variant">Disco SSD Principal</span></div><div class="p-space-sm rounded-lg bg-surface-container-lowest flex items-center justify-between"><div class="flex items-center gap-space-xs"><span class="w-2 h-2 rounded-full bg-primary-container animate-pulse"></span><span class="font-data-mono-sm text-data-mono-sm text-on-surface-variant">yt-dlp v2024.11</span></div><span class="font-label-md text-label-md text-tertiary-fixed">Activo</span></div></div></aside><div class="pl-64"><header class="fixed top-0 left-64 right-0 h-14 bg-surface-container-lowest/80 backdrop-blur-xl z-40 flex items-center justify-between px-space-lg shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="flex items-center gap-space-lg"><div class="flex items-center gap-space-xs"><button aria-label="Cerrar ventana" class="w-3 h-3 rounded-full bg-error hover:opacity-80 transition-opacity" type="button"></button><button aria-label="Minimizar ventana" class="w-3 h-3 rounded-full bg-secondary-fixed-dim hover:opacity-80 transition-opacity" type="button"></button><button aria-label="Maximizar ventana" class="w-3 h-3 rounded-full bg-tertiary-container hover:opacity-80 transition-opacity" type="button"></button></div><div class="flex items-center gap-space-sm px-space-md py-space-xs bg-surface-container-low rounded-lg text-on-surface-variant"><span class="material-symbols-outlined text-[16px]">folder_open</span><span class="font-data-mono-sm text-data-mono-sm truncate max-w-xs">~/Downloads/StreamGrab</span></div></div><div class="flex items-center gap-space-md"><div class="flex items-center gap-space-xs px-space-sm py-space-2xs bg-surface-container-low rounded-lg text-on-surface-variant"><span class="material-symbols-outlined text-[14px]">tune</span><span class="font-label-md text-label-md text-on-surface">Mejor Calidad (Max 4K + FLAC)</span></div><button aria-label="Notificaciones" class="w-8 h-8 rounded-lg flex items-center justify-center text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors" type="button"><span class="material-symbols-outlined text-[18px]">notifications</span></button><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></header><main class="w-full pt-14 px-space-lg bg-background min-h-screen"><div class="flex flex-col w-full pb-space-2xl gap-space-xl">
+<!-- Top Ambient Glow Layer -->
+<div class="relative w-full flex flex-col items-center">
+<div class="absolute -top-16 w-3/4 h-56 bg-gradient-to-b from-primary-container/15 via-secondary-container/10 to-transparent blur-3xl pointer-events-none -z-10 rounded-full"></div>
+<!-- Section 1: Hero & Smart URL Parsing Zone -->
+<div class="w-full max-w-4xl flex flex-col items-center text-center pt-space-lg pb-space-xs">
+<div class="inline-flex items-center gap-space-xs px-space-md py-space-2xs rounded-full bg-surface-container-high/80 text-primary-fixed text-label-md font-label-md mb-space-md shadow-sm">
+<span class="w-2 h-2 rounded-full bg-primary-container animate-ping"></span>
+<span class="material-symbols-outlined text-[15px] text-primary-container">speed</span>
+<span>Motor yt-dlp v2024.11 • Ultra-Fast Pipeline Activo</span>
+</div>
+<h1 class="font-headline-xl text-headline-xl text-on-surface tracking-tight max-w-2xl">
+        Descarga contenido en <span class="text-transparent bg-clip-text bg-gradient-to-r from-primary via-primary-container to-secondary">máxima calidad</span>
+</h1>
+<p class="font-body-md text-body-md text-on-surface-variant mt-space-xs max-w-xl">
+        Pega cualquier enlace de YouTube, TikTok, Instagram, X (Twitter) o Facebook. Detección automática de códecs e inicio al instante.
+      </p>
+<!-- URL Input Precision Dock -->
+<div class="w-full mt-space-lg bg-surface-container-low/95 rounded-xl p-space-sm shadow-[0_12px_36px_rgba(0,0,0,0.45)] flex flex-col gap-space-sm">
+<div class="relative flex items-center bg-surface-container-lowest rounded-lg px-space-md py-space-xs transition-all focus-within:shadow-[0_0_16px_rgba(0,229,255,0.25)]">
+<!-- Dynamic Detected Icon / Status -->
+<div class="flex items-center gap-space-xs pr-space-sm text-primary">
+<span class="material-symbols-outlined text-[20px]" id="engine-status-icon">link</span>
+<span class="font-data-mono-sm text-data-mono-sm px-space-xs py-space-2xs bg-surface-container rounded text-primary-container font-medium tracking-wide">AUTO-DETECT</span>
+</div>
+<!-- Main Input Field -->
+<input class="w-full bg-transparent font-data-mono text-data-mono text-on-surface placeholder:text-outline focus:outline-none py-space-sm px-space-xs" id="url-input" placeholder="https://www.youtube.com/watch?v=... o instagram.com/reel/..." spellcheck="false" type="url" value="https://www.youtube.com/watch?v=dQw4w9WgXcQ"/>
+<!-- Quick Paste Shortcut Button -->
+<button class="flex items-center gap-space-xs px-space-sm py-space-xs rounded bg-surface-container hover:bg-surface-container-high text-on-surface-variant hover:text-on-surface transition-colors mr-space-xs" id="paste-btn" title="Pegar portapapeles" type="button">
+<span class="material-symbols-outlined text-[16px]">content_paste</span>
+<span class="font-data-mono-sm text-data-mono-sm hidden sm:inline">⌘V</span>
+</button>
+<!-- Primary Action CTA -->
+<button class="flex items-center gap-space-xs px-space-lg py-space-sm rounded-lg bg-primary-container text-on-primary-container font-headline-sm text-headline-sm hover:brightness-110 active:scale-95 transition-all shadow-[0_0_16px_rgba(0,229,255,0.35)] shrink-0" id="fetch-btn" type="button">
+<span class="material-symbols-outlined text-[18px]">bolt</span>
+<span>Analizar Enlace</span>
+</button>
+</div>
+<!-- Secondary Controls & Smart Clipboard Toggle -->
+<div class="flex items-center justify-between px-space-xs text-on-surface-variant">
+<label class="flex items-center gap-space-xs cursor-pointer group">
+<input checked="" class="w-4 h-4 rounded bg-surface-container-highest accent-primary-container cursor-pointer" type="checkbox"/>
+<span class="font-label-md text-label-md group-hover:text-on-surface transition-colors">
+              Detectar portapapeles automáticamente al enfocar la app
+            </span>
+</label>
+<div class="flex items-center gap-space-md">
+<span class="font-data-mono-sm text-data-mono-sm text-outline flex items-center gap-1">
+<span class="w-1.5 h-1.5 rounded-full bg-primary-container inline-block"></span>
+              Aceleración GPU: NVENC/Apple Silicon
+            </span>
+<button class="font-label-md text-label-md text-secondary hover:text-on-surface transition-colors flex items-center gap-1" type="button">
+<span class="material-symbols-outlined text-[14px]">tune</span>
+              Parámetros yt-dlp
+            </button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Section 2: Supported Platform Selector & Quick Tile Badges -->
+<div class="w-full flex flex-col gap-space-sm">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-[18px] text-primary-fixed-dim">category</span>
+<h2 class="font-headline-md text-headline-md text-on-surface tracking-tight">Plataformas Optimizadas</h2>
+<span class="font-data-mono-sm text-data-mono-sm px-space-xs py-space-2xs bg-surface-container-high rounded text-secondary">5 Canales Activos</span>
+</div>
+<button class="font-label-md text-label-md text-on-surface-variant hover:text-primary transition-colors flex items-center gap-space-2xs">
+<span>Ver todas las 1,400+ fuentes soportadas</span>
+<span class="material-symbols-outlined text-[14px]">arrow_forward</span>
+</button>
+</div>
+<!-- Platform Cards Grid -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-space-md">
+<!-- YouTube -->
+<div class="group bg-surface-container-low hover:bg-surface-container rounded-xl p-space-md flex flex-col justify-between transition-all duration-200 cursor-pointer shadow-sm hover:shadow-md">
+<div class="flex items-center justify-between">
+<div class="w-9 h-9 rounded-lg bg-surface-container-high flex items-center justify-center text-[#ff3333] group-hover:scale-105 transition-transform">
+<span class="material-symbols-outlined text-[22px]">smart_display</span>
+</div>
+<span class="font-data-mono-sm text-data-mono-sm px-space-xs py-space-2xs rounded bg-surface-container-lowest text-primary">Hasta 4K60</span>
+</div>
+<div class="mt-space-md">
+<h3 class="font-headline-sm text-headline-sm text-on-surface flex items-center gap-space-xs">
+            YouTube
+            <span class="w-1.5 h-1.5 rounded-full bg-primary-fixed-dim inline-block"></span>
+</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-space-2xs">Videos, Shorts, Playlists, Audio FLAC / 320kbps</p>
+</div>
+</div>
+<!-- TikTok -->
+<div class="group bg-surface-container-low hover:bg-surface-container rounded-xl p-space-md flex flex-col justify-between transition-all duration-200 cursor-pointer shadow-sm hover:shadow-md">
+<div class="flex items-center justify-between">
+<div class="w-9 h-9 rounded-lg bg-surface-container-high flex items-center justify-center text-primary-container group-hover:scale-105 transition-transform">
+<span class="material-symbols-outlined text-[22px]">music_cast</span>
+</div>
+<span class="font-data-mono-sm text-data-mono-sm px-space-xs py-space-2xs rounded bg-surface-container-lowest text-tertiary-fixed">No Watermark</span>
+</div>
+<div class="mt-space-md">
+<h3 class="font-headline-sm text-headline-sm text-on-surface flex items-center gap-space-xs">
+            TikTok
+            <span class="w-1.5 h-1.5 rounded-full bg-primary-fixed-dim inline-block"></span>
+</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-space-2xs">Extracción limpia sin marca de agua en HD 1080p nativo</p>
+</div>
+</div>
+<!-- Instagram -->
+<div class="group bg-surface-container-low hover:bg-surface-container rounded-xl p-space-md flex flex-col justify-between transition-all duration-200 cursor-pointer shadow-sm hover:shadow-md">
+<div class="flex items-center justify-between">
+<div class="w-9 h-9 rounded-lg bg-surface-container-high flex items-center justify-center text-secondary group-hover:scale-105 transition-transform">
+<span class="material-symbols-outlined text-[22px]">photo_camera_front</span>
+</div>
+<span class="font-data-mono-sm text-data-mono-sm px-space-xs py-space-2xs rounded bg-surface-container-lowest text-secondary-fixed">Multi-Slide</span>
+</div>
+<div class="mt-space-md">
+<h3 class="font-headline-sm text-headline-sm text-on-surface flex items-center gap-space-xs">
+            Instagram
+            <span class="w-1.5 h-1.5 rounded-full bg-primary-fixed-dim inline-block"></span>
+</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-space-2xs">Reels, Historias de 24h, Carruseles y Audios originales</p>
+</div>
+</div>
+<!-- X / Twitter -->
+<div class="group bg-surface-container-low hover:bg-surface-container rounded-xl p-space-md flex flex-col justify-between transition-all duration-200 cursor-pointer shadow-sm hover:shadow-md">
+<div class="flex items-center justify-between">
+<div class="w-9 h-9 rounded-lg bg-surface-container-high flex items-center justify-center text-on-surface group-hover:scale-105 transition-transform">
+<span class="material-symbols-outlined text-[22px]">tag</span>
+</div>
+<span class="font-data-mono-sm text-data-mono-sm px-space-xs py-space-2xs rounded bg-surface-container-lowest text-primary">Direct MP4</span>
+</div>
+<div class="mt-space-md">
+<h3 class="font-headline-sm text-headline-sm text-on-surface flex items-center gap-space-xs">
+            X / Twitter
+            <span class="w-1.5 h-1.5 rounded-full bg-primary-fixed-dim inline-block"></span>
+</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-space-2xs">Clips directos de tweets, hilos con video y animaciones GIF</p>
+</div>
+</div>
+<!-- Facebook -->
+<div class="group bg-surface-container-low hover:bg-surface-container rounded-xl p-space-md flex flex-col justify-between transition-all duration-200 cursor-pointer shadow-sm hover:shadow-md">
+<div class="flex items-center justify-between">
+<div class="w-9 h-9 rounded-lg bg-surface-container-high flex items-center justify-center text-secondary-fixed group-hover:scale-105 transition-transform">
+<span class="material-symbols-outlined text-[22px]">groups</span>
+</div>
+<span class="font-data-mono-sm text-data-mono-sm px-space-xs py-space-2xs rounded bg-surface-container-lowest text-outline">Watch & Reels</span>
+</div>
+<div class="mt-space-md">
+<h3 class="font-headline-sm text-headline-sm text-on-surface flex items-center gap-space-xs">
+            Facebook
+            <span class="w-1.5 h-1.5 rounded-full bg-primary-fixed-dim inline-block"></span>
+</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-space-2xs">Reels públicos, videos largos de grupos y eventos Watch</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Section 3: Active Media Preview & Extraction Configuration Drawer -->
+<div class="w-full flex flex-col gap-space-sm">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-[18px] text-primary-container">page_info</span>
+<h2 class="font-headline-md text-headline-md text-on-surface tracking-tight">Recurso Listo para Descarga</h2>
+<span class="font-data-mono-sm text-data-mono-sm px-space-xs py-space-2xs rounded bg-surface-container-high text-primary-fixed">Metadatos 100% resueltos</span>
+</div>
+<span class="font-data-mono-sm text-data-mono-sm text-on-surface-variant">Resolución original detectada: 3840x2160 (AV1 / Opus)</span>
+</div>
+<!-- Master Extraction Card -->
+<div class="w-full bg-surface-container-low rounded-xl p-space-lg shadow-md flex flex-col lg:flex-row gap-space-xl">
+<!-- Media Thumbnail & Quick Preview Pane -->
+<div class="relative w-full lg:w-96 shrink-0 aspect-video rounded-lg overflow-hidden bg-surface-container-highest shadow-inner group">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="Futuristic glowing holographic laboratory visual showcasing AI nodes and quantum computer processors in a dark cinematic palette of deep slate, electric cyan, and vibrant blue light" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDdszuVMj66Zxx7GynltcvgUB5HNa8cRwWKuHBhGKoNgenvv0vrQh142ip2oBbo_x5_yihoye5DXS-EbS8_dVYB-TH0SMyHPiGduCjehP0VsKAK8cc1gMtQrwm9TtWnRPEVFyZTF7xh1_gDROqf3P08ZAUTEiDMrV0jLV3Fnl0O1HmNSDzBdy5XJNiiPChHte9tdoqfiyBnm-jKg-PSQlp1IjvzXRZIGCyzIrKRwMA"/>
+<!-- Live Play Overlay Indicator -->
+<div class="absolute inset-0 bg-gradient-to-t from-surface-container-lowest/90 via-transparent to-surface-container-lowest/20 flex flex-col justify-between p-space-sm">
+<div class="flex items-center justify-between">
+<span class="px-space-xs py-space-2xs rounded bg-surface-container-lowest/90 font-data-mono-sm text-data-mono-sm text-primary-container font-bold flex items-center gap-1">
+<span class="w-1.5 h-1.5 rounded-full bg-primary-container"></span>
+              4K HDR
+            </span>
+<span class="px-space-xs py-space-2xs rounded bg-surface-container-lowest/90 font-data-mono-sm text-data-mono-sm text-on-surface">
+              60 FPS
+            </span>
+</div>
+<div class="flex items-center justify-between">
+<span class="font-data-mono text-data-mono text-on-surface px-space-sm py-space-2xs rounded bg-surface-container-lowest/95 backdrop-blur-md">
+              14:28
+            </span>
+<button class="w-8 h-8 rounded-full bg-surface-container-low/90 backdrop-blur-md flex items-center justify-center text-primary hover:bg-primary hover:text-on-primary transition-all">
+<span class="material-symbols-outlined text-[18px]">play_arrow</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Config & Parameter Toggles -->
+<div class="flex-1 flex flex-col justify-between min-w-0">
+<div>
+<!-- Title & Badges -->
+<div class="flex flex-wrap items-center gap-space-xs text-on-surface-variant font-label-md text-label-md">
+<span class="px-space-xs py-space-2xs rounded bg-surface-container font-data-mono-sm text-data-mono-sm text-primary flex items-center gap-1">
+<span class="material-symbols-outlined text-[13px]">smart_display</span> YouTube
+            </span>
+<span>•</span>
+<span class="text-on-surface font-medium">TechNova Media</span>
+<span>•</span>
+<span>1.2M visualizaciones</span>
+<span>•</span>
+<span class="text-outline">Subido hace 2 días</span>
+</div>
+<h3 class="font-headline-lg text-headline-lg text-on-surface tracking-tight mt-space-xs line-clamp-2">
+            Documental Tech 2025: El Futuro de la IA y Computación Espacial
+          </h3>
+<!-- Formats Selector Tabs -->
+<div class="mt-space-md grid grid-cols-1 md:grid-cols-3 gap-space-sm">
+<!-- Format Choice: Video MP4 -->
+<div class="bg-surface-container rounded-lg p-space-sm flex flex-col gap-space-xs hover:bg-surface-container-high transition-colors cursor-pointer">
+<div class="flex items-center justify-between">
+<span class="font-label-md text-label-md text-primary flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">movie</span> Video MP4 / MKV
+                </span>
+<span class="material-symbols-outlined text-[14px] text-primary-container">check_circle</span>
+</div>
+<select class="bg-surface-container-lowest text-on-surface font-data-mono-sm text-data-mono-sm rounded p-space-xs focus:outline-none cursor-pointer">
+<option selected="">4K 2160p60 (AV1) ~ 1.4 GB</option>
+<option>2K 1440p60 (VP9) ~ 850 MB</option>
+<option>1080p FHD (H.264) ~ 420 MB</option>
+<option>720p HD (H.264) ~ 190 MB</option>
+</select>
+<span class="font-data-mono-sm text-data-mono-sm text-outline">Incluye audio muxed automático</span>
+</div>
+<!-- Format Choice: Audio Extraction -->
+<div class="bg-surface-container rounded-lg p-space-sm flex flex-col gap-space-xs hover:bg-surface-container-high transition-colors cursor-pointer">
+<div class="flex items-center justify-between">
+<span class="font-label-md text-label-md text-on-surface flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">graphic_eq</span> Audio Solo
+                </span>
+<span class="w-3 h-3 rounded-full bg-surface-container-highest"></span>
+</div>
+<select class="bg-surface-container-lowest text-on-surface-variant font-data-mono-sm text-data-mono-sm rounded p-space-xs focus:outline-none cursor-pointer">
+<option>MP3 • 320 kbps (Alta Calidad)</option>
+<option>FLAC • Lossless (Audio Puro)</option>
+<option>M4A / AAC • 256 kbps</option>
+<option>WAV • Sin compresión</option>
+</select>
+<label class="flex items-center gap-1 text-data-mono-sm font-data-mono-sm text-outline cursor-pointer">
+<input class="accent-primary-container scale-90" type="checkbox"/>
+<span>Separar capítulos como pistas</span>
+</label>
+</div>
+<!-- Format Choice: Subtitles & Metadata -->
+<div class="bg-surface-container rounded-lg p-space-sm flex flex-col gap-space-xs hover:bg-surface-container-high transition-colors cursor-pointer">
+<div class="flex items-center justify-between">
+<span class="font-label-md text-label-md text-on-surface flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">subtitles</span> Subtítulos & Tags
+                </span>
+<span class="material-symbols-outlined text-[14px] text-outline">tune</span>
+</div>
+<select class="bg-surface-container-lowest text-on-surface-variant font-data-mono-sm text-data-mono-sm rounded p-space-xs focus:outline-none cursor-pointer">
+<option>Español (Autogenerado) .srt</option>
+<option>Inglés (Original) .srt + .vtt</option>
+<option>Incrustar directo en el contenedor</option>
+<option>No descargar subtítulos</option>
+</select>
+<label class="flex items-center gap-1 text-data-mono-sm font-data-mono-sm text-outline cursor-pointer">
+<input checked="" class="accent-primary-container scale-90" type="checkbox"/>
+<span>Incrustar Miniatura en Metadatos</span>
+</label>
+</div>
+</div>
+</div>
+<!-- Buttons Cluster -->
+<div class="flex items-center justify-between pt-space-md mt-space-sm">
+<div class="flex items-center gap-space-sm text-on-surface-variant font-data-mono-sm text-data-mono-sm">
+<span class="material-symbols-outlined text-[16px]">folder</span>
+<span class="truncate max-w-[200px] md:max-w-xs">~/Downloads/StreamGrab/YouTube</span>
+<button class="text-primary hover:underline font-label-md text-label-md">Cambiar</button>
+</div>
+<div class="flex items-center gap-space-sm">
+<button class="px-space-lg py-space-sm rounded-lg bg-surface-container-high hover:bg-surface-container-highest text-on-surface font-headline-sm text-headline-sm transition-colors flex items-center gap-space-xs" type="button">
+<span class="material-symbols-outlined text-[16px]">playlist_add</span>
+<span>Añadir a la Cola</span>
+</button>
+<button class="px-space-xl py-space-sm rounded-lg bg-primary-container text-on-primary-container font-headline-sm text-headline-sm hover:brightness-110 active:scale-95 transition-all shadow-[0_0_18px_rgba(0,229,255,0.35)] flex items-center gap-space-xs" type="button">
+<span class="material-symbols-outlined text-[18px]">download_for_offline</span>
+<span>Descargar Ahora</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Section 4: Live Downloading & Active Queue Section -->
+<div class="w-full flex flex-col gap-space-sm">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-[18px] text-primary-fixed-dim">downloading</span>
+<h2 class="font-headline-md text-headline-md text-on-surface tracking-tight">Descargas en Progreso</h2>
+<span class="font-data-mono-sm text-data-mono-sm px-space-xs py-space-2xs bg-secondary-container text-on-secondary-container rounded-full font-medium">2 activas</span>
+</div>
+<div class="flex items-center gap-space-md text-on-surface-variant font-data-mono-sm text-data-mono-sm">
+<span class="flex items-center gap-1">
+<span class="w-2 h-2 rounded-full bg-primary-container animate-pulse"></span>
+          Velocidad Total: <strong class="text-on-surface font-headline-sm">30.5 MB/s</strong>
+</span>
+<span>•</span>
+<span>ETA Global: 15 segundos</span>
+</div>
+</div>
+<!-- Active Tasks Table / List -->
+<div class="flex flex-col gap-space-xs">
+<!-- Task 1: TikTok Reel -->
+<div class="bg-surface-container-low hover:bg-surface-container-high/60 transition-colors rounded-xl p-space-md flex flex-col gap-space-xs shadow-sm">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-md min-w-0">
+<!-- Thumbnail Box -->
+<div class="w-16 h-12 rounded bg-surface-container-highest shrink-0 overflow-hidden relative">
+<img class="w-full h-full object-cover" data-alt="Vertical mobile screen capture preview of a moody urban cinematography reel showing warm neon lights and dramatic cinematic color grading" src="https://lh3.googleusercontent.com/aida-public/AB6AXuADFwjBrax5O9HDkAQMF8E0v-F9mwKrtr-Zd2bcKihdSsvxJcEmo6bV9iBG3FhpARhWYoWUg5zKT9OBz3hIbhtV3qiz1eQ2ZrVTG-n07SXR7DP2E4BbD3kIbH5RTHeino8_9N0uebUm12tVF5FiPqx_HY3V-XRignqTIILWTCLTYFAbPd4-mRzJtuxGIypLw_xV0xgCiFVIZTDa_UUUv_JIwYPO_syzmrlDsA-TDEc"/>
+<span class="absolute bottom-0 right-0 px-1 bg-surface-container-lowest/90 text-primary-container font-data-mono-sm text-[9px]">0:45</span>
+</div>
+<!-- Title & Metadata -->
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-space-xs">
+<span class="px-space-xs py-space-2xs rounded bg-surface-container font-data-mono-sm text-data-mono-sm text-tertiary-fixed">TikTok</span>
+<span class="font-headline-sm text-headline-sm text-on-surface truncate max-w-md">tips_cinematic_lut_2025_portrait.mp4</span>
+</div>
+<div class="flex items-center gap-space-sm text-on-surface-variant font-data-mono-sm text-data-mono-sm mt-0.5">
+<span>1080x1920 (H.264)</span>
+<span>•</span>
+<span class="text-tertiary-fixed">Sin marca de agua</span>
+<span>•</span>
+<span>28.4 MB de 36.2 MB</span>
+</div>
+</div>
+</div>
+<!-- Speed & Actions -->
+<div class="flex items-center gap-space-lg shrink-0">
+<div class="flex flex-col items-end">
+<span class="font-headline-sm text-headline-sm text-primary-container">18.4 MB/s</span>
+<span class="font-data-mono-sm text-data-mono-sm text-on-surface-variant">Faltan ~3s (78%)</span>
+</div>
+<div class="flex items-center gap-space-xs">
+<button class="w-8 h-8 rounded-lg bg-surface-container hover:bg-surface-container-highest flex items-center justify-center text-on-surface transition-colors" title="Pausar">
+<span class="material-symbols-outlined text-[16px]">pause</span>
+</button>
+<button class="w-8 h-8 rounded-lg bg-surface-container hover:bg-error-container hover:text-on-error flex items-center justify-center text-on-surface-variant transition-colors" title="Cancelar">
+<span class="material-symbols-outlined text-[16px]">close</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Hairline Progress Bar -->
+<div class="w-full h-1.5 bg-surface-container-highest rounded-full overflow-hidden mt-space-2xs">
+<div class="h-full bg-primary-container rounded-full transition-all duration-300" style="width: 78%;"></div>
+</div>
+</div>
+<!-- Task 2: X (Twitter) Clip -->
+<div class="bg-surface-container-low hover:bg-surface-container-high/60 transition-colors rounded-xl p-space-md flex flex-col gap-space-xs shadow-sm">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-md min-w-0">
+<!-- Thumbnail Box -->
+<div class="w-16 h-12 rounded bg-surface-container-highest shrink-0 overflow-hidden relative">
+<img class="w-full h-full object-cover" data-alt="Fast action space rocket rocket launch trail against a deep starry night sky with vibrant propulsion flames and smoke plumes" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCWioGVHICOhPHn90ooduuSh9k0s9rs3f2Ds3Jt3kax0xnYPAwg0yO10Kbx3rWwYHgpi7YVZlnciQnzmFUFh2m6oE0OwDEHSE0dK7EuiRhJgSZihUKKA5IhXoyhMfWBX1ItIgEklNC1bM9z4NoLlnpfS06F_Nafv5asV9AJHmnKcmbV1_j6OoLdKv6x3s1s8lPtRRlHQJ3vXG97Z_tmPZVYMzGbtxpBdNysyS4q3PE"/>
+<span class="absolute bottom-0 right-0 px-1 bg-surface-container-lowest/90 text-primary font-data-mono-sm text-[9px]">0:22</span>
+</div>
+<!-- Title & Metadata -->
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-space-xs">
+<span class="px-space-xs py-space-2xs rounded bg-surface-container font-data-mono-sm text-data-mono-sm text-on-surface">X / Twitter</span>
+<span class="font-headline-sm text-headline-sm text-on-surface truncate max-w-md">launch_event_starship_booster_catch.mp4</span>
+</div>
+<div class="flex items-center gap-space-sm text-on-surface-variant font-data-mono-sm text-data-mono-sm mt-0.5">
+<span>1080p HD (AVC1)</span>
+<span>•</span>
+<span>Descargando fragmentos DASH</span>
+<span>•</span>
+<span>14.8 MB de 43.5 MB</span>
+</div>
+</div>
+</div>
+<!-- Speed & Actions -->
+<div class="flex items-center gap-space-lg shrink-0">
+<div class="flex flex-col items-end">
+<span class="font-headline-sm text-headline-sm text-secondary-fixed">12.1 MB/s</span>
+<span class="font-data-mono-sm text-data-mono-sm text-on-surface-variant">Faltan ~12s (34%)</span>
+</div>
+<div class="flex items-center gap-space-xs">
+<button class="w-8 h-8 rounded-lg bg-surface-container hover:bg-surface-container-highest flex items-center justify-center text-on-surface transition-colors" title="Pausar">
+<span class="material-symbols-outlined text-[16px]">pause</span>
+</button>
+<button class="w-8 h-8 rounded-lg bg-surface-container hover:bg-error-container hover:text-on-error flex items-center justify-center text-on-surface-variant transition-colors" title="Cancelar">
+<span class="material-symbols-outlined text-[16px]">close</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Hairline Progress Bar -->
+<div class="w-full h-1.5 bg-surface-container-highest rounded-full overflow-hidden mt-space-2xs">
+<div class="h-full bg-secondary rounded-full transition-all duration-300" style="width: 34%;"></div>
+</div>
+</div>
+</div>
+<!-- Live Floating Control Footer Bar -->
+<div class="mt-space-sm flex flex-wrap items-center justify-between p-space-sm bg-surface-container-low rounded-lg text-on-surface-variant text-label-md font-label-md">
+<div class="flex items-center gap-space-md">
+<button class="hover:text-on-surface transition-colors flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">pause_circle</span>
+<span>Pausar todas las descargas</span>
+</button>
+<span>•</span>
+<button class="hover:text-on-surface transition-colors flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">restart_alt</span>
+<span>Reanudar pendientes</span>
+</button>
+<span>•</span>
+<button class="hover:text-on-surface transition-colors flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">delete_sweep</span>
+<span>Limpiar finalizadas</span>
+</button>
+</div>
+<div class="flex items-center gap-space-lg">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-[16px] text-primary">speed</span>
+<span class="font-data-mono-sm text-data-mono-sm">Límite de velocidad:</span>
+<select class="bg-surface-container-highest text-on-surface font-data-mono-sm text-data-mono-sm rounded px-space-xs py-space-2xs focus:outline-none">
+<option>Ilimitado (Full Gigabit)</option>
+<option>50 MB/s (Modo Balanceado)</option>
+<option>10 MB/s (Modo Segundo Plano)</option>
+</select>
+</div>
+<button class="px-space-md py-space-xs rounded bg-surface-container hover:bg-surface-container-high text-on-surface transition-colors flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-[16px]">folder_open</span>
+<span>Abrir Carpeta de Descargas</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<script>
+  (function() {
+    const input = document.getElementById('url-input');
+    const pasteBtn = document.getElementById('paste-btn');
+    const fetchBtn = document.getElementById('fetch-btn');
+    const statusIcon = document.getElementById('engine-status-icon');
+
+    // Smart platform detector based on input value
+    function updatePlatformIcon(url) {
+      if (url.includes('youtube.com') || url.includes('youtu.be')) {
+        statusIcon.textContent = 'smart_display';
+        statusIcon.className = 'material-symbols-outlined text-[20px] text-[#ff4444]';
+      } else if (url.includes('tiktok.com')) {
+        statusIcon.textContent = 'music_cast';
+        statusIcon.className = 'material-symbols-outlined text-[20px] text-primary-container';
+      } else if (url.includes('instagram.com')) {
+        statusIcon.textContent = 'photo_camera_front';
+        statusIcon.className = 'material-symbols-outlined text-[20px] text-secondary';
+      } else if (url.includes('twitter.com') || url.includes('x.com')) {
+        statusIcon.textContent = 'tag';
+        statusIcon.className = 'material-symbols-outlined text-[20px] text-on-surface';
+      } else if (url.includes('facebook.com') || url.includes('fb.watch')) {
+        statusIcon.textContent = 'groups';
+        statusIcon.className = 'material-symbols-outlined text-[20px] text-secondary-fixed';
+      } else {
+        statusIcon.textContent = 'link';
+        statusIcon.className = 'material-symbols-outlined text-[20px] text-primary';
+      }
+    }
+
+    if (input) {
+      input.addEventListener('input', (e) => updatePlatformIcon(e.target.value));
+      updatePlatformIcon(input.value);
+    }
+
+    if (pasteBtn && input) {
+      pasteBtn.addEventListener('click', async () => {
+        try {
+          if (navigator.clipboard) {
+            const clipText = await navigator.clipboard.readText();
+            if (clipText) {
+              input.value = clipText;
+              updatePlatformIcon(clipText);
+            }
+          }
+        } catch (_) {
+          input.focus();
+          input.select();
+        }
+      });
+    }
+
+    if (fetchBtn) {
+      fetchBtn.addEventListener('click', () => {
+        fetchBtn.classList.add('brightness-125');
+        setTimeout(() => fetchBtn.classList.remove('brightness-125'), 200);
+      });
+    }
+  })();
+</script></main></div></body></html>
