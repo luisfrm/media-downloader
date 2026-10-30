@@ -3,7 +3,7 @@
  * Descarga yt-dlp + ffmpeg para la plataforma actual dentro de src-tauri/binaries.
  * Uso: npm run setup:engine
  */
-import { createWriteStream, existsSync, mkdirSync, readdirSync, renameSync, rmSync, chmodSync } from 'node:fs'
+import { createWriteStream, existsSync, mkdirSync, readdirSync, copyFileSync, unlinkSync, rmSync, chmodSync } from 'node:fs'
 import { execFileSync } from 'node:child_process'
 import path from 'node:path'
 import os from 'node:os'
@@ -20,10 +20,22 @@ mkdirSync(tmpDir, { recursive: true })
 const exe = (name) => (isWindows ? `${name}.exe` : name)
 
 async function download(url, destination) {
-  process.stdout.write(`→ ${url}\n`)
-  const response = await fetch(url, { redirect: 'follow' })
-  if (!response.ok) throw new Error(`HTTP ${response.status} al descargar ${url}`)
-  await pipeline(response.body, createWriteStream(destination))
+  for (let attempt = 1; attempt <= 3; attempt += 1) {
+    process.stdout.write(`→ ${url}${attempt > 1 ? ` (intento ${attempt})` : ''}\n`)
+    rmSync(destination, { force: true })
+    try {
+      const response = await fetch(url, { redirect: 'follow' })
+      if (!response.ok) throw new Error(`HTTP ${response.status}`)
+      await pipeline(response.body, createWriteStream(destination))
+      return
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error)
+      if (attempt === 3) throw new Error(`${message} al descargar ${url}`)
+      const wait = attempt * 2000
+      console.warn(`  falló (${message}); reintento en ${wait} ms`)
+      await new Promise((resolve) => setTimeout(resolve, wait))
+    }
+  }
 }
 
 async function ensureYtDlp() {
@@ -67,7 +79,7 @@ async function ensureFfmpeg() {
     ])
     const found = findFile(extracted, 'ffmpeg.exe')
     if (!found) throw new Error('No se encontró ffmpeg.exe dentro del archivo descargado')
-    renameSync(found, target)
+    moveFile(found, target)
     console.log('✓ ffmpeg listo')
     return
   }
@@ -83,7 +95,7 @@ async function ensureFfmpeg() {
     execFileSync('unzip', ['-o', archive, '-d', path.join(tmpDir, 'ffmpeg-extracted')])
     const found = findFile(path.join(tmpDir, 'ffmpeg-extracted'), 'ffmpeg')
     if (!found) throw new Error('No se encontró el binario ffmpeg')
-    renameSync(found, target)
+    moveFile(found, target)
     chmodSync(target, 0o755)
     console.log('✓ ffmpeg listo')
     return
@@ -99,13 +111,20 @@ async function ensureFfmpeg() {
     execFileSync('tar', ['-xf', archive, '-C', extracted])
     const found = findFile(extracted, 'ffmpeg')
     if (!found) throw new Error('No se encontró el binario ffmpeg')
-    renameSync(found, target)
+    moveFile(found, target)
     chmodSync(target, 0o755)
     console.log('✓ ffmpeg listo')
     return
   }
 
   console.warn(`! Plataforma sin descarga automática de ffmpeg: ${process.platform}`)
+}
+
+function moveFile(source, target) {
+  // GitHub Actions en Windows tiene el workspace en D: y el temp en C:.
+  // renameSync falla con EXDEV al cruzar dispositivos; copy + unlink es seguro.
+  copyFileSync(source, target)
+  unlinkSync(source)
 }
 
 function findFile(directory, name) {
