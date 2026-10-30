@@ -151,7 +151,7 @@ fn with_ffmpeg(app: &AppHandle, mut args: Vec<String>) -> Vec<String> {
 
 pub fn probe_blocking(app: &AppHandle, args: Vec<String>) -> Result<Value, String> {
     let tool = paths::resolve_tool(app, "yt-dlp")
-        .ok_or_else(|| "No se encontró yt-dlp. Instalalo con npm run setup:engine.".to_string())?;
+        .ok_or_else(|| "No se encontró yt-dlp. Ejecutá pnpm setup:binaries.".to_string())?;
     let args = with_ffmpeg(app, args);
 
     let mut command = Command::new(tool);
@@ -212,7 +212,7 @@ pub fn spawn_ytdlp(app: AppHandle, id: String, args: Vec<String>) -> Result<(), 
     use std::fs::File;
 
     let tool = paths::resolve_tool(&app, "yt-dlp")
-        .ok_or_else(|| "No se encontró yt-dlp. Instalalo con npm run setup:engine.".to_string())?;
+        .ok_or_else(|| "No se encontró yt-dlp. Ejecutá pnpm setup:binaries.".to_string())?;
     let args = with_ffmpeg(&app, args);
 
     let log_path = std::env::temp_dir().join(format!("media-downloader-{id}.log"));
@@ -412,7 +412,7 @@ pub fn cancel(app: &AppHandle, id: &str) -> Result<(), String> {
 
 pub fn spawn_ffmpeg(app: AppHandle, id: String, args: Vec<String>) -> Result<(), String> {
     let tool = paths::resolve_tool(&app, "ffmpeg")
-        .ok_or_else(|| "No se encontró ffmpeg. Instalalo con npm run setup:engine.".to_string())?;
+        .ok_or_else(|| "No se encontró ffmpeg. Ejecutá pnpm setup:binaries.".to_string())?;
 
     let output_path = args.last().cloned();
     emit_phase(&app, &id, "processing");
@@ -467,4 +467,52 @@ pub fn spawn_ffmpeg(app: AppHandle, id: String, args: Vec<String>) -> Result<(),
     });
 
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn parses_the_progress_template_line() {
+        let progress = parse_progress("dl|1000|2000|NA|500.5|3|50").expect("progress line");
+        assert_eq!(progress.downloaded, 1000);
+        assert_eq!(progress.total, Some(2000));
+        assert!((progress.percent - 0.5).abs() < 0.001);
+    }
+
+    #[test]
+    fn derives_percent_when_the_template_reports_na() {
+        let progress = parse_progress("dl|250|NA|1000|NA|NA|NA").expect("progress line");
+        assert_eq!(progress.total, Some(1000));
+        assert!((progress.percent - 0.25).abs() < 0.001);
+    }
+
+    #[test]
+    fn normalizes_percentages_in_the_0_100_scale() {
+        let progress = parse_progress("dl|0|0|0|0|0|42").expect("progress line");
+        assert!((progress.percent - 0.42).abs() < 0.001);
+    }
+
+    #[test]
+    fn ignores_unrelated_output() {
+        assert!(parse_progress("[download] 10% of 1MiB").is_none());
+    }
+
+    #[test]
+    fn detects_post_processing_steps() {
+        assert!(is_post_process("[Merger] Merging formats into \"a.mp4\""));
+        assert!(is_post_process("[ExtractAudio] Destination: a.mp3"));
+        assert!(!is_post_process("[download] Destination: a.mp4"));
+    }
+
+    #[test]
+    fn recognizes_absolute_paths() {
+        assert_eq!(
+            absolute_path(r"C:\Users\demo\a.mp4").as_deref(),
+            Some(r"C:\Users\demo\a.mp4")
+        );
+        assert_eq!(absolute_path("/home/demo/a.mp4").as_deref(), Some("/home/demo/a.mp4"));
+        assert_eq!(absolute_path("[download] Destination: a.mp4"), None);
+    }
 }
