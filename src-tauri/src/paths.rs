@@ -33,6 +33,10 @@ pub fn resolve_tool(app: &AppHandle, name: &str) -> Option<PathBuf> {
 
     candidates.push(app_bin_dir(app).join(&exe));
 
+    if let Ok(resource_dir) = app.path().resource_dir() {
+        candidates.push(resource_dir.join("bin").join(&exe));
+    }
+
     if cfg!(debug_assertions) {
         candidates.push(
             PathBuf::from(env!("CARGO_MANIFEST_DIR"))
