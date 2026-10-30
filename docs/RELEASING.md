@@ -44,6 +44,7 @@ Workflow: `.github/workflows/build.yml`
 | --- | --- | --- |
 | `version` | Ubuntu | Reads `package.json`, checks whether `vX.Y.Z` already exists, decides `publish` |
 | `audit` | Ubuntu | `pnpm audit --prod` (informative, does not block) |
+| `checks` | Ubuntu | `pnpm lint:yaml` |
 | `build` | matrix: Windows, Linux, macOS | Install, provision engine, build, test, bundle, normalize names, upload artifacts |
 | `publish` | Ubuntu, only if `publish=true` | Download the three artifacts, add `INSTALL.md` + `SHA256SUMS.txt`, attest provenance, create/update the release |
 
@@ -94,7 +95,7 @@ Outputs:
 - Require a pull request before merging (1 approval).
 - Require review from Code Owners.
 - Dismiss stale approvals.
-- Require status checks: `Resolve version`, `Windows x64`, `Linux x64`, `macOS arm64`.
+- Require status checks: `Resolve version`, `Repo checks`, `Windows x64`, `Linux x64`, `macOS arm64`.
 - Require conversation resolution.
 - Do **not** allow force pushes or deletions.
 - Do not enforce on admins (maintainers keep the bypass).
