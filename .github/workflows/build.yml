@@ -1,0 +1,248 @@
+name: Release
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+  workflow_dispatch:
+    inputs:
+      force:
+        description: Republicar aunque el release ya exista
+        type: boolean
+        default: false
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+env:
+  CARGO_TERM_COLOR: always
+  RUST_BACKTRACE: '1'
+
+jobs:
+  version:
+    name: Resolve version
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.meta.outputs.version }}
+      publish: ${{ steps.meta.outputs.publish }}
+      tag: ${{ steps.meta.outputs.tag }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - name: Resolve version and publish flag
+        id: meta
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          FORCE: ${{ inputs.force }}
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          TAG="v$VERSION"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            echo "publish=false" >> "$GITHUB_OUTPUT"
+            echo "PR detectado: solo se compila y testea."
+            exit 0
+          fi
+
+          if [ "$FORCE" = "true" ]; then
+            echo "publish=true" >> "$GITHUB_OUTPUT"
+            echo "force=true: se republica $TAG."
+            exit 0
+          fi
+
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            echo "publish=false" >> "$GITHUB_OUTPUT"
+            echo "$TAG ya existe: solo se verifica."
+          else
+            echo "publish=true" >> "$GITHUB_OUTPUT"
+            echo "$TAG es nuevo: se publica al final."
+          fi
+
+  audit:
+    name: Dependency audit
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4
+        with:
+          run_install: false
+
+      - name: Setup Node
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version-file: .node-version
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Audit production dependencies
+        run: pnpm audit --prod
+
+  build:
+    name: ${{ matrix.name }}
+    needs: version
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            name: Windows x64
+            key: windows-x64
+            bundles: msi,nsis
+          - os: ubuntu-22.04
+            name: Linux x64
+            key: linux-x64
+            bundles: deb,appimage
+          - os: macos-latest
+            name: macOS arm64
+            key: macos-arm64
+            bundles: dmg
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - name: Install Linux dependencies
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libwebkit2gtk-4.1-dev \
+            build-essential \
+            curl \
+            wget \
+            file \
+            libxdo-dev \
+            libssl-dev \
+            libayatana-appindicator3-dev \
+            librsvg2-dev \
+            patchelf \
+            libfuse2
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4
+        with:
+          run_install: false
+
+      - name: Setup Node
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version-file: .node-version
+          cache: pnpm
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@b725eda525362e7cf34af9a7243cac1e3f01a7ec # stable
+        with:
+          toolchain: '1.98.1'
+
+      - name: Cache Rust
+        uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2
+        with:
+          workspaces: src-tauri
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Provision yt-dlp and ffmpeg
+        run: pnpm setup:binaries
+
+      - name: Provision ffmpeg on macOS
+        if: runner.os == 'macOS'
+        run: |
+          brew install ffmpeg
+          cp "$(command -v ffmpeg)" src-tauri/binaries/ffmpeg
+          chmod +x src-tauri/binaries/ffmpeg
+
+      - name: Toolchain versions
+        run: |
+          node --version
+          pnpm --version
+          rustc --version
+
+      - name: Build frontend
+        run: pnpm build
+
+      - name: Test TypeScript
+        run: pnpm test
+
+      - name: Test Rust
+        run: pnpm test:rust
+
+      - name: Build bundles
+        run: pnpm tauri build --bundles ${{ matrix.bundles }}
+
+      - name: Normalize artifacts
+        run: >-
+          node scripts/collect-artifacts.mjs
+          --prefix "Media-Downloader_${{ needs.version.outputs.version }}_${{ matrix.key }}"
+          --in src-tauri/target/release/bundle
+          --out release
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: release-${{ matrix.key }}
+          path: release/*
+          if-no-files-found: error
+          retention-days: 14
+
+  publish:
+    name: Publish release
+    needs: [version, build]
+    if: needs.version.outputs.publish == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      id-token: write
+      attestations: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - name: Download artifacts
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          path: release
+          merge-multiple: true
+
+      - name: Add install guide
+        run: cp docs/INSTALL.md release/INSTALL.md
+
+      - name: Generate checksums
+        run: node scripts/collect-artifacts.mjs --checksums release
+
+      - name: Attest build provenance
+        uses: actions/attest-build-provenance@e8998f949152b193b063cb0ec769d69d929409be # v2
+        with:
+          subject-path: release/*
+
+      - name: Create or update the GitHub release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERSION: ${{ needs.version.outputs.version }}
+        run: |
+          TAG="v$VERSION"
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            echo "Actualizando $TAG"
+            gh release upload "$TAG" release/* --clobber
+          else
+            echo "Creando $TAG"
+            gh release create "$TAG" \
+              --target "$GITHUB_SHA" \
+              --title "Media Downloader $TAG" \
+              --generate-notes
+            gh release upload "$TAG" release/* --clobber
+          fi
