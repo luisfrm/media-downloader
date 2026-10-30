@@ -4,6 +4,24 @@ App de escritorio para descargar video, audio, miniaturas y subtítulos de YouTu
 
 Dark UI en azul/cian, barra lateral colapsable, cola con progreso real y biblioteca local.
 
+## Descargas
+
+Última versión: **[v0.1.0](https://github.com/luisfrm/media-downloader/releases/latest)**
+
+| Sistema | Instalador | Descarga |
+|---|---|---|
+| Windows 10/11 x64 | `Media-Downloader_0.1.0_windows-x64-setup.exe` (NSIS) | [Descargar](https://github.com/luisfrm/media-downloader/releases/download/v0.1.0/Media-Downloader_0.1.0_windows-x64-setup.exe) |
+| Windows 10/11 x64 | `Media-Downloader_0.1.0_windows-x64.msi` | [Descargar](https://github.com/luisfrm/media-downloader/releases/download/v0.1.0/Media-Downloader_0.1.0_windows-x64.msi) |
+| Linux x64 | `Media-Downloader_0.1.0_linux-x64.AppImage` | [Descargar](https://github.com/luisfrm/media-downloader/releases/download/v0.1.0/Media-Downloader_0.1.0_linux-x64.AppImage) |
+| Linux x64 | `Media-Downloader_0.1.0_linux-x64.deb` | [Descargar](https://github.com/luisfrm/media-downloader/releases/download/v0.1.0/Media-Downloader_0.1.0_linux-x64.deb) |
+| macOS arm64 | `Media-Downloader_0.1.0_macos-arm64.dmg` | [Descargar](https://github.com/luisfrm/media-downloader/releases/download/v0.1.0/Media-Downloader_0.1.0_macos-arm64.dmg) |
+
+Los instaladores ya incluyen `yt-dlp` y `ffmpeg`. No hace falta instalar nada más.
+
+- Instalación por sistema, SmartScreen/Gatekeeper y verificación de checksums: [docs/INSTALL.md](docs/INSTALL.md).
+- macOS Intel no está publicado todavía; solo `arm64`.
+- Los nombres de archivo incluyen la versión. Para la versión más reciente usá siempre la [página de releases](https://github.com/luisfrm/media-downloader/releases/latest).
+
 ## Stack
 
 | Capa | Tecnología |
@@ -101,17 +119,48 @@ node e2e/native.mjs
 
 Ese script analiza el link real de X, descarga el MP4 y verifica que pase a **Finalizadas**.
 
-## Releases
+## Flujo de release
 
-El proceso es **version-driven**: la versión vive en `package.json` y CI decide si publica.
+La versión vive en un solo lugar: `package.json`.
 
 ```bash
 pnpm release patch     # 0.1.0 -> 0.1.1
+# o: pnpm release minor | major | 1.2.3
 ```
 
-Un push con versión nueva compila Windows, Linux y macOS, corre los tests, normaliza los instaladores, genera `SHA256SUMS.txt`, firma la procedencia y crea el release. Un push sin bump solo verifica.
+`scripts/release.mjs` hace cinco cosas:
 
-Detalle completo, configuración de branch protection y trampas conocidas: [docs/RELEASING.md](docs/RELEASING.md).
+1. Verifica que el árbol de trabajo esté limpio y que la versión no baje.
+2. Sube `version` en `package.json`.
+3. Ejecuta `scripts/sync-version.mjs` → `Cargo.toml`, `Cargo.lock` y `tauri.conf.json`.
+4. Commitea `chore(release): vX.Y.Z`.
+5. Pushea a `master` (el admin conserva el bypass de branch protection).
+
+El tag **no** lo crea el script. Lo crea CI, y solo si los tres builds pasan.
+
+### Qué hace CI
+
+Workflow: `.github/workflows/build.yml`
+
+| Job | Qué hace |
+|---|---|
+| `version` | Lee `package.json` y pregunta si `vX.Y.Z` ya existe. Si no existe → `publish=true`. En PRs siempre es `false`. |
+| `audit` | `pnpm audit --prod` (informativo). |
+| `checks` | `pnpm lint:yaml`. |
+| `build` ×3 | Windows, Linux y macOS: instala, baja `yt-dlp`/`ffmpeg`, compila el frontend, corre tests TS + Rust + E2E (Linux), empaqueta, normaliza nombres y sube artifacts. |
+| `publish` | Solo si `publish=true`: descarga los artifacts, agrega `INSTALL.md`, genera `SHA256SUMS.txt`, firma la procedencia y crea/actualiza el release. |
+
+Resultado: un release con 5 instaladores (`msi`, `setup.exe`, `AppImage`, `deb`, `dmg`) + `INSTALL.md` + `SHA256SUMS.txt`.
+
+### Reglas
+
+- **Push sin bump de versión**: compila y testea los 3 sistemas, pero **no publica**.
+- **PR**: compila y testea, nunca publica.
+- **Republicar la misma versión**: Actions → **Release** → **Run workflow** → marcar `force`.
+- **Si un build falla**: no se crea tag ni release; se corrige y se vuelve a pushear.
+- **Firma/notarización**: pendiente. Windows SmartScreen y macOS Gatekeeper van a advertir.
+
+Detalle completo (branch protection, permisos, trampas conocidas): [docs/RELEASING.md](docs/RELEASING.md).
 
 Instalación por sistema: [docs/INSTALL.md](docs/INSTALL.md).
 
