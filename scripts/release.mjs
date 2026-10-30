@@ -60,6 +60,18 @@ if (next === current) {
   process.exit(1)
 }
 
+const parts = next.split('.').map(Number)
+const currentParts = current.split('.').map(Number)
+const isDowngrade =
+  parts[0] < currentParts[0] ||
+  (parts[0] === currentParts[0] && parts[1] < currentParts[1]) ||
+  (parts[0] === currentParts[0] && parts[1] === currentParts[1] && parts[2] < currentParts[2])
+
+if (isDowngrade) {
+  console.error(`No se puede bajar de ${current} a ${next}.`)
+  process.exit(1)
+}
+
 pkg.version = next
 writeFileSync('package.json', `${JSON.stringify(pkg, null, 2)}\n`)
 run('node', ['scripts/sync-version.mjs'])
