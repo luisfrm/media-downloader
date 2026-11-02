@@ -20,7 +20,7 @@ export interface Release {
 export const release = raw as Release
 
 export function formatBytes(bytes?: number): string {
-  if (!bytes || bytes <= 0) return '—'
+  if (!bytes || bytes <= 0) return 'Sin datos'
   const mb = bytes / 1024 / 1024
   return `${mb.toFixed(mb >= 100 ? 0 : 1)} MB`
 }

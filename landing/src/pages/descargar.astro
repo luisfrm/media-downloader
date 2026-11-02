@@ -5,132 +5,99 @@ import Faq from '../components/Faq.astro'
 import { site } from '../data/site'
 import { release, releaseDate } from '../lib/release'
 
-const siteUrl = Astro.site ?? new URL('https://media-downloader-landing.luisfrm.workers.dev')
-
-const title = 'Descargar Media Downloader — Windows, Linux y macOS'
+const title = 'Descargar Media Downloader: Windows, Linux y macOS'
 const description =
   'Descargá Media Downloader para Windows 10/11, Linux x64 o macOS Apple Silicon. Instaladores con yt-dlp y ffmpeg incluidos, checksums y guía de instalación.'
-
-const breadcrumb = {
-  '@context': 'https://schema.org',
-  '@type': 'BreadcrumbList',
-  itemListElement: [
-    { '@type': 'ListItem', position: 1, name: 'Inicio', item: new URL('/', siteUrl).href },
-    { '@type': 'ListItem', position: 2, name: 'Descargas', item: new URL('/descargar', siteUrl).href },
-  ],
-}
-
-const softwareApp = {
-  '@context': 'https://schema.org',
-  '@type': 'SoftwareApplication',
-  name: site.name,
-  applicationCategory: 'MultimediaApplication',
-  operatingSystem: 'Windows 10, Windows 11, Linux, macOS',
-  softwareVersion: release.version,
-  downloadUrl: release.assets.windowsSetup?.url ?? site.latestRelease,
-  installUrl: site.latestRelease,
-  softwareHelp: site.installDocs,
-  license: 'https://opensource.org/license/mit',
-  isAccessibleForFree: true,
-  offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
-  sameAs: [site.repo],
-}
 ---
 
-<Base title={title} description={description} jsonLd={[softwareApp, breadcrumb]}>
-  <section class="relative overflow-hidden border-b border-line">
-    <div class="pointer-events-none absolute inset-0 grid-backdrop" aria-hidden="true"></div>
-    <div class="container-page relative py-12 md:py-16">
-      <nav aria-label="Ruta de navegación" class="font-mono text-[10.5px] text-ink-3">
-        <a href="/" class="transition-colors hover:text-cyan">Inicio</a>
-        <span class="px-1.5 text-ink-3">/</span>
-        <span class="text-ink-2">Descargas</span>
+<Base title={title} description={description}>
+  <section class="section--s">
+    <div class="container-page">
+      <nav aria-label="Ruta de navegación" class="text-sm text-muted">
+        <a href="/">Inicio</a>
+        <span class="px-2">/</span>
+        <span>Descargas</span>
       </nav>
 
-      <h1 class="mt-4 max-w-[720px] font-display text-[34px] font-semibold leading-[1.08] tracking-[-0.03em] text-ink md:text-[46px]">
-        Descargá Media Downloader
-      </h1>
-      <p class="mt-4 max-w-[620px] text-[14px] leading-7 text-ink-2">
-        Un instalador por sistema, con yt-dlp y ffmpeg incluidos. Elegí el que corresponde a tu equipo; no hace falta
-        instalar dependencias.
+      <h1 class="mt-8 max-w-[18ch]">Descargá Media Downloader.</h1>
+      <p class="lede mt-5 max-w-[56ch]">
+        Windows, Linux y macOS. Los instaladores incluyen el motor.
       </p>
-      <div class="mt-5 flex flex-wrap items-center gap-x-5 gap-y-2 font-mono text-[10.5px] text-ink-3">
-        <span class="text-ink-2">Versión {release.version}</span>
-        <span class="text-ink-3">·</span>
-        <span>Publicada el {releaseDate()}</span>
-        <span class="text-ink-3">·</span>
-        <a href={release.releaseUrl} target="_blank" rel="noreferrer noopener" class="transition-colors hover:text-cyan">
-          Notas del release
-        </a>
-      </div>
+
+      <p class="label mt-6 flex flex-wrap gap-4 text-sm">
+        <span class="mono text-ink-2">{release.tag}</span>
+        <span>{releaseDate()}</span>
+        <a href={release.releaseUrl} target="_blank" rel="noreferrer noopener">Notas del release</a>
+      </p>
     </div>
   </section>
 
-  <DownloadSection compact heading="Instaladores" intro="Todos los paquetes de la misma versión. Los checksums están en el release." />
+  <DownloadSection
+    compact
+    heading="Instaladores."
+    intro="Todos los paquetes de la misma versión. Los checksums están en el release."
+  />
 
-  <section class="border-t border-line py-14 md:py-20">
-    <div class="container-page grid gap-10 lg:grid-cols-[0.9fr_1.1fr]">
+  <section class="section">
+    <div class="container-page grid gap-12 lg:grid-cols-2">
       <div>
-        <p class="font-mono text-[10.5px] uppercase tracking-[0.16em] text-cyan/80">Requisitos</p>
-        <h2 class="mt-2 font-display text-[24px] font-semibold tracking-[-0.02em] text-ink md:text-[28px]">
-          Qué necesita tu equipo
-        </h2>
-        <dl class="mt-5 divide-y divide-line rounded-lg border border-line bg-surface/35 text-[12px]">
-          <div class="flex items-start justify-between gap-6 px-4 py-3">
-            <dt class="text-ink-3">Windows</dt>
-            <dd class="text-right text-ink-2">Windows 10 u 11 · x64</dd>
+        <h2>Qué necesita tu equipo.</h2>
+        <dl class="mt-6 border-t border-rule text-sm">
+          <div class="flex justify-between gap-6 border-b border-rule py-4">
+            <dt class="text-muted">Windows</dt>
+            <dd class="text-right text-ink-2">Windows 10 u 11, x64</dd>
           </div>
-          <div class="flex items-start justify-between gap-6 px-4 py-3">
-            <dt class="text-ink-3">Linux</dt>
-            <dd class="text-right text-ink-2">x64 · glibc 2.31 o superior</dd>
+          <div class="flex justify-between gap-6 border-b border-rule py-4">
+            <dt class="text-muted">Linux</dt>
+            <dd class="text-right text-ink-2">x64, glibc 2.31 o superior</dd>
           </div>
-          <div class="flex items-start justify-between gap-6 px-4 py-3">
-            <dt class="text-ink-3">macOS</dt>
-            <dd class="text-right text-ink-2">Apple Silicon (arm64) · macOS 12+</dd>
+          <div class="flex justify-between gap-6 border-b border-rule py-4">
+            <dt class="text-muted">macOS</dt>
+            <dd class="text-right text-ink-2">Apple Silicon, macOS 12 o superior</dd>
           </div>
-          <div class="flex items-start justify-between gap-6 px-4 py-3">
-            <dt class="text-ink-3">Disco</dt>
-            <dd class="text-right text-ink-2">~150 MB para el motor y la app</dd>
+          <div class="flex justify-between gap-6 border-b border-rule py-4">
+            <dt class="text-muted">Disco</dt>
+            <dd class="text-right text-ink-2">Alrededor de 150 MB para la app y el motor</dd>
           </div>
-          <div class="flex items-start justify-between gap-6 px-4 py-3">
-            <dt class="text-ink-3">Cuenta</dt>
+          <div class="flex justify-between gap-6 border-b border-rule py-4">
+            <dt class="text-muted">Cuenta</dt>
             <dd class="text-right text-ink-2">No requiere registro</dd>
           </div>
         </dl>
 
-        <p class="mt-5 text-[11.5px] leading-5 text-ink-3">
+        <p class="mt-5 max-w-[52ch] text-sm text-muted">
           Windows SmartScreen y macOS Gatekeeper pueden advertir porque la firma de código todavía está pendiente. La
           guía de instalación explica cómo continuar de forma segura.
         </p>
       </div>
 
       <div>
-        <p class="font-mono text-[10.5px] uppercase tracking-[0.16em] text-cyan/80">Instalación</p>
-        <h2 class="mt-2 font-display text-[24px] font-semibold tracking-[-0.02em] text-ink md:text-[28px]">
-          Tres caminos, un resultado
-        </h2>
+        <h2>Tres caminos, un resultado.</h2>
 
-        <div class="mt-5 space-y-2.5">
-          <article class="rounded-lg border border-line bg-surface/35 p-4">
-            <h3 class="font-display text-[13px] font-semibold text-ink">Windows · .exe (recomendado)</h3>
-            <p class="mt-1.5 text-[11.5px] leading-5 text-ink-3">
+        <div class="mt-6 space-y-6">
+          <article>
+            <h3>Windows, instalador .exe</h3>
+            <p class="mt-2 max-w-[56ch] text-sm text-ink-2">
               Ejecutá el instalador y seguí el asistente. Se instala por usuario, sin permisos de administrador. Si
               SmartScreen lo bloquea, elegí «Más información» y «Ejecutar de todas formas».
             </p>
           </article>
-          <article class="rounded-lg border border-line bg-surface/35 p-4">
-            <h3 class="font-display text-[13px] font-semibold text-ink">Linux · AppImage</h3>
-            <pre class="mt-2 overflow-x-auto rounded-md bg-bg/70 p-2.5 font-mono text-[10.5px] text-ink-2"><code>chmod +x Media-Downloader_*_linux-x64.AppImage
+
+          <article>
+            <h3>Linux, AppImage</h3>
+            <pre class="code mt-3"><code>chmod +x Media-Downloader_*_linux-x64.AppImage
 ./Media-Downloader_*_linux-x64.AppImage</code></pre>
-            <p class="mt-2 text-[11px] leading-5 text-ink-3">
-              Si preferís el paquete del sistema: <span class="font-mono text-ink-2">sudo apt install ./Media-Downloader_*_linux-x64.deb</span>.
+            <p class="mt-3 max-w-[56ch] text-sm text-ink-2">
+              Si preferís el paquete del sistema:
+              <span class="mono">sudo apt install ./Media-Downloader_*_linux-x64.deb</span>.
             </p>
           </article>
-          <article class="rounded-lg border border-line bg-surface/35 p-4">
-            <h3 class="font-display text-[13px] font-semibold text-ink">macOS · .dmg</h3>
-            <p class="mt-1.5 text-[11.5px] leading-5 text-ink-3">
-              Abrí la imagen, arrastrá la app a Aplicaciones y, si Gatekeeper la bloquea, usá clic derecho → Abrir.
-              La firma y notarización están pendientes.
+
+          <article>
+            <h3>macOS, imagen .dmg</h3>
+            <p class="mt-2 max-w-[56ch] text-sm text-ink-2">
+              Abrí la imagen, arrastrá la app a Aplicaciones y, si Gatekeeper la bloquea, usá clic derecho y Abrir. La
+              firma y notarización están pendientes.
             </p>
           </article>
         </div>
@@ -139,7 +106,7 @@ const softwareApp = {
           href={site.installDocs}
           target="_blank"
           rel="noreferrer noopener"
-          class="mt-4 inline-flex h-10 items-center gap-2 rounded-md border border-line px-3.5 text-[11.5px] text-ink-2 transition-colors hover:border-line-strong hover:text-ink"
+          class="key key--ghost key--sm mt-6"
         >
           Guía completa de instalación
         </a>
@@ -147,36 +114,35 @@ const softwareApp = {
     </div>
   </section>
 
-  <section class="border-t border-line bg-surface/20 py-14 md:py-16">
-    <div class="container-page grid gap-8 lg:grid-cols-[0.9fr_1.1fr]">
+  <section class="section--s bg-paper-2">
+    <div class="container-page grid gap-12 lg:grid-cols-2">
       <div>
-        <p class="font-mono text-[10.5px] uppercase tracking-[0.16em] text-cyan/80">Verificación</p>
-        <h2 class="mt-2 font-display text-[24px] font-semibold tracking-[-0.02em] text-ink md:text-[28px]">
-          Comprobá la descarga
-        </h2>
-        <p class="mt-3 text-[12.5px] leading-6 text-ink-3">
-          Cada release publica un <span class="font-mono text-ink-2">SHA256SUMS.txt</span> junto a los instaladores y
-          una atestación de procedencia firmada por GitHub Actions.
+        <h2>Comprobá la descarga.</h2>
+        <p class="lede mt-4 max-w-[52ch]">
+          Cada release publica SHA256SUMS.txt junto a los instaladores y una atestación de procedencia firmada por
+          GitHub Actions.
         </p>
+        {release.checksums ? (
+          <a href={release.checksums} class="mt-5 inline-block text-sm text-ink-2">Abrir SHA256SUMS.txt</a>
+        ) : null}
       </div>
-      <div class="rounded-lg border border-line bg-bg/60 p-4">
-        <p class="font-mono text-[9.5px] uppercase tracking-[0.12em] text-ink-3">Windows (PowerShell)</p>
-        <pre class="mt-1.5 overflow-x-auto font-mono text-[10.5px] leading-5 text-ink-2"><code>Get-FileHash .\Media-Downloader_*_windows-x64-setup.exe -Algorithm SHA256</code></pre>
-        <p class="mt-3 font-mono text-[9.5px] uppercase tracking-[0.12em] text-ink-3">Linux / macOS</p>
-        <pre class="mt-1.5 overflow-x-auto font-mono text-[10.5px] leading-5 text-ink-2"><code>sha256sum -c SHA256SUMS.txt --ignore-missing</code></pre>
+      <div>
+        <p class="label text-sm text-ink-2">Windows, PowerShell</p>
+        <pre class="code mt-2"><code>Get-FileHash .\Media-Downloader_*_windows-x64-setup.exe -Algorithm SHA256</code></pre>
+        <p class="label mt-5 text-sm text-ink-2">Linux y macOS</p>
+        <pre class="code mt-2"><code>sha256sum -c SHA256SUMS.txt --ignore-missing</code></pre>
       </div>
     </div>
   </section>
 
-  <section class="border-t border-line py-14 md:py-20">
-    <div class="container-page grid gap-8 lg:grid-cols-[0.8fr_1.2fr]">
-      <div>
-        <p class="font-mono text-[10.5px] uppercase tracking-[0.16em] text-cyan/80">Dudas</p>
-        <h2 class="mt-2 font-display text-[24px] font-semibold tracking-[-0.02em] text-ink md:text-[28px]">
-          Antes de instalar
-        </h2>
+  <section class="section">
+    <div class="container-page split">
+      <div class="split__copy">
+        <h2>Antes de instalar.</h2>
       </div>
-      <Faq />
+      <div class="split__body">
+        <Faq />
+      </div>
     </div>
   </section>
 </Base>

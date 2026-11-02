@@ -18,7 +18,7 @@ const { title, description, image, imageAlt, canonical, noindex, jsonLd } = Astr
 ---
 
 <!doctype html>
-<html lang="es">
+<html lang="es" class="overflow-x-clip">
   <head>
     <Seo
       title={title}
@@ -31,10 +31,10 @@ const { title, description, image, imageAlt, canonical, noindex, jsonLd } = Astr
     />
     <slot name="head" />
   </head>
-  <body class="min-h-dvh bg-bg text-ink">
+  <body class="min-h-dvh overflow-x-clip text-ink">
     <a
       href="#contenido"
-      class="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-md focus:bg-cyan focus:px-4 focus:py-2 focus:text-[13px] focus:font-semibold focus:text-[#06212a]"
+      class="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[60] focus:rounded-md focus:bg-accent focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-accent-ink"
     >
       Saltar al contenido
     </a>

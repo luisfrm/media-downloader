@@ -1,7 +1,6 @@
 ---
-import DownloadCard from './DownloadCard.astro'
 import { downloads, site } from '../data/site'
-import { release, releaseDate } from '../lib/release'
+import { asset, formatBytes, release, releaseDate } from '../lib/release'
 
 interface Props {
   heading?: string
@@ -10,70 +9,101 @@ interface Props {
 }
 
 const {
-  heading = 'Descargá para tu sistema',
-  intro = 'Instaladores para Windows, Linux y macOS. Incluyen yt-dlp y ffmpeg: no hace falta instalar nada más.',
+  heading = 'Descargá para tu sistema.',
+  intro = 'Instaladores para Windows, Linux y macOS. Incluyen yt-dlp y ffmpeg; no hace falta instalar nada más.',
   compact = false,
 } = Astro.props
 ---
 
-<section id="descargas" class:list={['relative border-t border-line py-16 md:py-24', compact && 'py-10 md:py-14']}>
+<section id="descargas" class:list={['bg-paper-3', compact ? 'section--s' : 'section']}>
   <div class="container-page">
-    <div class="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+    <div class="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
       <div class="max-w-[560px]">
-        <p class="font-mono text-[10.5px] uppercase tracking-[0.16em] text-cyan/80">Descargas</p>
-        <h2 class="mt-2 font-display text-[26px] font-semibold tracking-[-0.02em] text-ink md:text-[34px]">
-          {heading}
-        </h2>
-        <p class="mt-2 text-[13.5px] leading-6 text-ink-3">{intro}</p>
+        <h2>{heading}</h2>
+        <p class="lede mt-4">{intro}</p>
       </div>
-
-      <div class="flex flex-wrap items-center gap-x-4 gap-y-1 font-mono text-[10.5px] text-ink-3">
-        <span class="text-ink-2">{release.tag}</span>
-        <span class="text-ink-3">·</span>
+      <p class="label flex flex-wrap gap-4 text-sm">
+        <span class="mono text-ink-2">{release.tag}</span>
         <span>{releaseDate()}</span>
-        <span class="text-ink-3">·</span>
-        <a href={site.releases} class="transition-colors hover:text-cyan" target="_blank" rel="noreferrer noopener">
-          Todas las versiones
-        </a>
-      </div>
-    </div>
-
-    <div
-      data-mobile-note
-      class="mt-5 items-start gap-2 rounded-lg border border-amber/25 bg-amber/[0.06] px-3.5 py-3 text-[11.5px] leading-5 text-amber/90"
-    >
-      <span class="mt-0.5">●</span>
-      <span>
-        Estás en un dispositivo móvil. Abrí esta página en tu computadora para descargar el instalador.
-      </span>
-    </div>
-
-    <div class="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-      {downloads.map((item) => <DownloadCard item={item} />)}
-    </div>
-
-    <div class="mt-5 flex flex-col gap-3 rounded-lg border border-line bg-bg/40 px-4 py-3.5 sm:flex-row sm:items-center sm:justify-between">
-      <p class="flex items-start gap-2 text-[11px] leading-5 text-ink-3">
-        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8"
-          stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="mt-0.5 shrink-0 text-green/80">
-          <path d="M12 22s8-3.5 8-10V5l-8-3-8 3v7c0 6.5 8 10 8 10Z" />
-          <path d="m9 12 2 2 4-4" />
-        </svg>
-        <span>
-          Verificá lo que descargás: cada release publica <span class="font-mono text-ink-2">SHA256SUMS.txt</span> y
-          una atestación de procedencia.
-        </span>
       </p>
-      <div class="flex flex-wrap gap-x-4 gap-y-1 font-mono text-[10.5px]">
-        {release.checksums && (
-          <a href={release.checksums} class="text-ink-2 transition-colors hover:text-cyan">
-            SHA256SUMS.txt
-          </a>
-        )}
-        <a href={site.installDocs} class="text-ink-2 transition-colors hover:text-cyan" target="_blank" rel="noreferrer noopener">
-          Guía de instalación
-        </a>
-      </div>
+    </div>
+
+    <p
+      data-mobile-note
+      class="mt-6 items-start gap-3 border-l-2 border-accent bg-accent-wash px-4 py-3 text-sm text-ink-2"
+    >
+      Estás en un dispositivo móvil. Abrí esta página en tu computadora para descargar el instalador.
+    </p>
+
+    <div class="mt-8 overflow-x-auto">
+      <table class="ledger" aria-label="Descargas por sistema">
+        <thead>
+          <tr>
+            <th scope="col">Sistema</th>
+            <th scope="col">Archivo</th>
+            <th scope="col">Tamaño</th>
+            <th scope="col">Acción</th>
+          </tr>
+        </thead>
+        <tbody>
+          {
+            downloads.map((item) => {
+              const primary = asset(item.primary)
+              const secondary = item.secondary ? asset(item.secondary) : null
+              return (
+                <tr class="os-row" data-os={item.os}>
+                  <td>
+                    <span class="block font-display text-title text-ink">{item.name}</span>
+                    <span class="mt-1 block text-sm text-muted">{item.arch}</span>
+                    <span class="os-you mt-1 text-sm text-accent">tu sistema</span>
+                  </td>
+                  <td>
+                    {primary ? (
+                      <>
+                        <a href={primary.url} class="inline-block font-display text-title text-ink no-underline hover:text-accent">
+                          {item.primaryLabel}
+                        </a>
+                        <span class="mono mt-1 block break-all text-xs text-muted">{primary.name}</span>
+                      </>
+                    ) : (
+                      <span class="text-sm text-muted">No disponible en este release.</span>
+                    )}
+                    {secondary ? (
+                      <a href={secondary.url} class="mt-2 inline-block text-sm text-ink-2">
+                        {item.secondaryLabel} <span class="mono text-muted">{formatBytes(secondary.size)}</span>
+                      </a>
+                    ) : null}
+                    <p class="mt-2 max-w-[46ch] text-sm text-muted">{item.note}</p>
+                  </td>
+                  <td class="mono whitespace-nowrap text-ink-2">
+                    {formatBytes(primary?.size)}
+                    {secondary ? <span class="mt-1 block text-muted">{formatBytes(secondary.size)}</span> : null}
+                  </td>
+                  <td>
+                    {primary ? (
+                      <a href={primary.url} class="key key--ghost key--sm">Descargar</a>
+                    ) : (
+                      <a href={site.latestRelease} class="key key--ghost key--sm">Ver release</a>
+                    )}
+                  </td>
+                </tr>
+              )
+            })
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <div class="mt-5 flex flex-wrap items-center gap-x-6 gap-y-2 text-sm">
+      {release.checksums ? (
+        <a href={release.checksums} class="text-ink-2">SHA256SUMS.txt</a>
+      ) : null}
+      <a href={site.installDocs} class="text-ink-2" target="_blank" rel="noreferrer noopener">
+        Guía de instalación
+      </a>
+      <a href={site.releases} class="text-ink-2" target="_blank" rel="noreferrer noopener">
+        Todas las versiones
+      </a>
     </div>
   </div>
 </section>

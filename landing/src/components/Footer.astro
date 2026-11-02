@@ -1,88 +1,36 @@
 ---
 import Logo from './Logo.astro'
 import { site } from '../data/site'
-import { release } from '../lib/release'
 
 const year = new Date().getFullYear()
-
-const columns = [
-  {
-    title: 'Producto',
-    links: [
-      { href: '/#funciones', label: 'Funciones' },
-      { href: '/#como-funciona', label: 'Cómo funciona' },
-      { href: '/#plataformas', label: 'Plataformas' },
-      { href: '/descargar', label: 'Descargas' },
-    ],
-  },
-  {
-    title: 'Recursos',
-    links: [
-      { href: site.repo, label: 'Código fuente', external: true },
-      { href: site.releases, label: 'Releases', external: true },
-      { href: site.installDocs, label: 'Guía de instalación', external: true },
-      { href: '/#faq', label: 'Preguntas frecuentes' },
-    ],
-  },
-  {
-    title: 'Legal',
-    links: [
-      { href: '/privacidad', label: 'Privacidad' },
-      { href: `${site.repo}/blob/master/LICENSE`, label: `Licencia ${site.license}`, external: true },
-      { href: `${site.repo}/blob/master/SECURITY.md`, label: 'Seguridad', external: true },
-    ],
-  },
-]
 ---
 
-<footer class="border-t border-line bg-surface/40">
-  <div class="container-page py-12">
-    <div class="grid gap-10 md:grid-cols-[1.4fr_repeat(3,1fr)]">
-      <div>
-        <a href="/" class="flex items-center gap-2.5" aria-label="Media Downloader, ir al inicio">
-          <Logo size={30} />
-          <span class="font-display text-[15px] font-semibold text-ink">Media Downloader</span>
+<footer class="section--s hairline">
+  <div class="container-page">
+    <div class="footer-grid">
+      <div class="footer-statement">
+        <a href="/" class="wordmark" aria-label="Media Downloader, ir al inicio">
+          <Logo size={28} />
+          <span>Media Downloader</span>
         </a>
-        <p class="mt-3 max-w-[280px] text-[12.5px] leading-5 text-ink-3">
-          Descargador de video y audio para Windows, Linux y macOS. Open source, sin cuentas y sin subir tus enlaces a
-          ningún servidor.
-        </p>
-        <p class="mt-4 font-mono text-[10.5px] text-ink-3">
-          Última versión: <span class="text-ink-2">{release.tag}</span>
+        <p class="text-display-s mt-8 max-w-[18ch] text-ink">Se queda en tu equipo.</p>
+        <p class="mt-4 max-w-[52ch] text-sm text-muted">
+          Open source y sin cuenta. La web es estática; la app descarga con yt-dlp y ffmpeg en tu computadora.
         </p>
       </div>
 
-      {
-        columns.map((column) => (
-          <nav aria-label={column.title}>
-            <h2 class="text-[11px] font-medium uppercase tracking-[0.12em] text-ink-3">{column.title}</h2>
-            <ul class="mt-3 space-y-2">
-              {column.links.map((link) => (
-                <li>
-                  <a
-                    href={link.href}
-                    target={'external' in link && link.external ? '_blank' : undefined}
-                    rel={'external' in link && link.external ? 'noreferrer noopener' : undefined}
-                    class="text-[12.5px] text-ink-2 transition-colors duration-150 hover:text-cyan"
-                  >
-                    {link.label}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </nav>
-        ))
-      }
+      <nav class="footer-links" aria-label="Recursos">
+        <a href={site.repo} target="_blank" rel="noreferrer noopener">GitHub</a>
+        <a href={site.releases} target="_blank" rel="noreferrer noopener">Releases</a>
+        <a href={site.installDocs} target="_blank" rel="noreferrer noopener">Guía de instalación</a>
+        <a href="/privacidad">Privacidad</a>
+        <a href={`${site.repo}/blob/master/SECURITY.md`} target="_blank" rel="noreferrer noopener">Seguridad</a>
+      </nav>
     </div>
 
-    <div class="mt-10 flex flex-col gap-3 border-t border-line pt-5 text-[11px] text-ink-3 sm:flex-row sm:items-center sm:justify-between">
-      <p>
-        © {year} {site.name} · Licencia {site.license}
-      </p>
-      <p class="flex items-center gap-1.5">
-        <span class="size-1.5 rounded-full bg-cyan"></span>
-        Web estática servida desde Cloudflare Workers · sin backend
-      </p>
+    <div class="legal">
+      <span>© {year} Media Downloader. Licencia MIT.</span>
+      <span>Sitio estático servido desde Cloudflare Workers.</span>
     </div>
   </div>
 </footer>

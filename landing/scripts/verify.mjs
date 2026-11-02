@@ -62,7 +62,11 @@ mkdirSync('.preview', { recursive: true })
     viewport: document.querySelector('meta[name="viewport"]')?.getAttribute('content'),
     csp: document.querySelector('meta[http-equiv="content-security-policy"]')?.getAttribute('content'),
     jsonLd: [...document.querySelectorAll('script[type="application/ld+json"]')].map((node) => JSON.parse(node.textContent)),
-    images: [...document.images].map((img) => ({ src: img.getAttribute('src'), alt: img.getAttribute('alt') })),
+    images: [...document.images].map((img) => ({
+      src: img.getAttribute('src'),
+      alt: img.getAttribute('alt'),
+      hidden: img.getAttribute('aria-hidden') === 'true' || img.closest('[aria-hidden="true"]') !== null,
+    })),
   }))
 
   await check('home: title y description', () => {
@@ -89,7 +93,10 @@ mkdirSync('.preview', { recursive: true })
   })
   await check('home: imágenes con alt', () => {
     assert.ok(meta.images.length > 0)
-    for (const image of meta.images) assert.ok(image.alt && image.alt.length > 5, image.src)
+    for (const image of meta.images) {
+      if (image.hidden) continue
+      assert.ok(image.alt && image.alt.length > 5, image.src)
+    }
   })
   await check('home: sin errores de consola', () => assert.deepEqual(errors, []))
   await check('home: sin recursos 4xx/5xx', () => assert.deepEqual(bad, []))
@@ -125,15 +132,55 @@ mkdirSync('.preview', { recursive: true })
   })
 
   await check('home: CTA principal mide 44px de alto', async () => {
-    const heights = await page.locator('#descargas article a').evaluateAll((links) =>
+    const heights = await page.locator('#descargas .key, .hero-actions .key').evaluateAll((links) =>
       links.map((a) => a.getBoundingClientRect().height),
     )
-    assert.ok(heights.length >= 5, `links=${heights.length}`)
-    assert.ok(heights.every((height) => height >= 40), heights.join(','))
+    assert.ok(heights.length >= 6, `links=${heights.length}`)
+    assert.ok(heights.every((height) => height >= 44), heights.join(','))
+  })
+
+  await check('home: sin gradiente en el título', async () => {
+    const title = await page.locator('h1').evaluate((el) => {
+      const style = getComputedStyle(el)
+      return { image: style.backgroundImage, clip: style.backgroundClip, fill: style.webkitTextFillColor }
+    })
+    assert.equal(title.image, 'none')
+    assert.notEqual(title.clip, 'text')
+  })
+
+  await check('home: transiciones sin transition-all', async () => {
+    const style = await page.locator('.hero-actions .key').first().evaluate((el) => {
+      const computed = getComputedStyle(el)
+      return { property: computed.transitionProperty, duration: computed.transitionDuration }
+    })
+    assert.match(style.property, /transform/)
+    assert.ok(!style.property.includes('all'))
+    assert.notEqual(style.duration, '0s')
+  })
+
+  await check('home: hero completo a 1280x800', async () => {
+    await page.setViewportSize({ width: 1280, height: 800 })
+    await page.waitForTimeout(300)
+    const boxes = await page.evaluate(() => {
+      const selectors = ['h1', '.hero .lede', '.hero-actions .key', '.hero-visual img']
+      return selectors.map((selector) => {
+        const element = document.querySelector(selector)
+        if (!element) return { selector, missing: true }
+        const rect = element.getBoundingClientRect()
+        return { selector, top: rect.top, bottom: rect.bottom, height: rect.height }
+      })
+    })
+    for (const box of boxes) {
+      assert.ok(!box.missing, `${box.selector} no existe`)
+      assert.ok(box.top >= 0 && box.top < 800, `${box.selector} arriba fuera: ${box.top}`)
+      assert.ok(box.bottom > 0 && box.bottom <= 800, `${box.selector} abajo fuera: ${box.bottom}`)
+      assert.ok(box.height > 0)
+    }
+    await page.setViewportSize({ width: 1440, height: 900 })
   })
 
   await check('home: FAQ abre y cierra', async () => {
-    const details = page.locator('#faq details').nth(1)
+    const details = page.locator('#preguntas details').nth(1)
     await details.locator('summary').click()
     assert.equal(await details.evaluate((el) => el.open), true)
     await details.locator('summary').click()
@@ -175,20 +222,19 @@ for (const [name, userAgent, expected] of [
   })
   await check(`OS ${name}: CTA y badge coherentes`, async () => {
     const state = await page.evaluate(() => ({
-      visibleLabels: [...document.querySelectorAll('.os-recommended-label')].filter(
-        (el) => getComputedStyle(el).display !== 'none',
-      ).length,
+      osYou: [...document.querySelectorAll('.os-you')].filter((el) => getComputedStyle(el).display !== 'none').length,
       mobileNote: getComputedStyle(document.querySelector('[data-mobile-note]')).display,
-      cta: document.querySelector('main a[href="/descargar"]')?.textContent?.replace(/\s+/g, ' ').trim(),
+      headerCta: document.querySelector('header a[href="/descargar"]')?.textContent?.trim(),
+      heroKeys: [...document.querySelectorAll('.hero-actions .key')].map((el) => el.textContent?.trim()),
     }))
+    assert.equal(state.headerCta, 'Descargar')
+    assert.deepEqual(state.heroKeys, ['Windows', 'Linux', 'macOS'])
     if (expected === 'movil') {
-      assert.equal(state.visibleLabels, 0)
+      assert.equal(state.osYou, 0)
       assert.equal(state.mobileNote, 'flex')
-      assert.match(state.cta, /Descargar gratis/)
     } else {
-      assert.equal(state.visibleLabels, 1)
+      assert.equal(state.osYou, 1)
       assert.equal(state.mobileNote, 'none')
-      assert.match(state.cta, new RegExp(`Descargar para ${name === 'macOS' ? 'macOS' : name}`))
     }
   })
   await context.close()
@@ -198,8 +244,8 @@ for (const [name, userAgent, expected] of [
 {
   const context = await browser.newContext({ viewport: { width: 1440, height: 900 } })
   for (const [path, heading] of [
-    ['/descargar', 'Descargá Media Downloader'],
-    ['/privacidad', 'Privacidad'],
+    ['/descargar', 'Descargá Media Downloader.'],
+    ['/privacidad', 'Privacidad.'],
   ]) {
     const { page, response, errors, bad } = await openPage(context, path)
     await check(`${path} responde 200 y tiene h1`, async () => {

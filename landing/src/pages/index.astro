@@ -1,20 +1,43 @@
 ---
 import { Image } from 'astro:assets'
 import Base from '../layouts/Base.astro'
-import BrandIcon from '../components/BrandIcon.astro'
-import FeatureIcon from '../components/FeatureIcon.astro'
 import DownloadSection from '../components/DownloadSection.astro'
 import Faq from '../components/Faq.astro'
-import { faqs, features, jsonLdOrganization, platforms, site, steps } from '../data/site'
-import { release } from '../lib/release'
-import homeShot from '../assets/app-home.png'
+import { faqs, jsonLdOrganization, platforms, site } from '../data/site'
+import { asset, release } from '../lib/release'
+import homeShot from '../assets/app-home-main.png'
 import queueShot from '../assets/app-queue.png'
+import converterShot from '../assets/app-converter.png'
+import libraryShot from '../assets/app-library.png'
 
 const siteUrl = Astro.site ?? new URL('https://media-downloader-landing.luisfrm.workers.dev')
+const windows = asset('windowsSetup')
+const linux = asset('linuxAppImage')
+const macos = asset('macosDmg')
 
-const title = 'Media Downloader — Descargá videos y audio de YouTube, X, TikTok e Instagram'
-const description =
-  'Descargá videos, audio, miniaturas y subtítulos de YouTube, X, TikTok, Instagram y Facebook. Open source, sin cuenta y sin subir enlaces a un servidor.'
+const title = 'Media Downloader: descargá videos y audio de YouTube, X, TikTok e Instagram'
+const description = site.description
+
+const field = [
+  'x.com/DonShelby_/status/2116216248  mp4 1280x1590  13.2 MB',
+  'youtube.com/watch  mp4 3840x2160  vtt es',
+  'tiktok.com/@  mp4 1080x1920  sin marca de agua',
+  'instagram.com/reel  mp4 1080x1350  carrusel',
+  'facebook.com/watch  mp4 1280x720  reels',
+  'mp3 320  flac  m4a  wav  opus',
+  'windows-x64  70.6 MB',
+  'linux-x64  142 MB',
+  'macos-arm64  37.9 MB',
+  'x.com/DonShelby_/status/2116216248  mp4 1280x1590  13.2 MB',
+  'youtube.com/watch  mp4 3840x2160  vtt es',
+  'tiktok.com/@  mp4 1080x1920  sin marca de agua',
+  'instagram.com/reel  mp4 1080x1350  carrusel',
+  'facebook.com/watch  mp4 1280x720  reels',
+  'mp3 320  flac  m4a  wav  opus',
+  'windows-x64  70.6 MB',
+  'linux-x64  142 MB',
+  'macos-arm64  37.9 MB',
+].join('\n')
 
 const softwareApp = {
   '@context': 'https://schema.org',
@@ -24,7 +47,7 @@ const softwareApp = {
   applicationCategory: 'MultimediaApplication',
   operatingSystem: 'Windows 10, Windows 11, Linux, macOS',
   softwareVersion: release.version,
-  downloadUrl: release.assets.windowsSetup?.url ?? site.latestRelease,
+  downloadUrl: windows?.url ?? site.latestRelease,
   installUrl: site.latestRelease,
   softwareHelp: site.installDocs,
   license: 'https://opensource.org/license/mit',
@@ -56,259 +79,215 @@ const faqPage = {
 ---
 
 <Base title={title} description={description} jsonLd={[softwareApp, website, faqPage]}>
-  <!-- Hero -->
-  <section class="relative overflow-hidden">
-    <div class="pointer-events-none absolute inset-0 grid-backdrop" aria-hidden="true"></div>
-    <div
-      class="pointer-events-none absolute -left-40 -top-40 size-[520px] rounded-full bg-cyan/[0.07] blur-[120px]"
-      aria-hidden="true"
-    >
-    </div>
-    <div
-      class="pointer-events-none absolute -right-52 top-24 size-[560px] rounded-full bg-blue/[0.14] blur-[140px]"
-      aria-hidden="true"
-    >
-    </div>
-
-    <div class="container-page relative grid items-center gap-12 py-14 md:py-20 lg:grid-cols-[1.02fr_1fr] lg:gap-10 lg:py-24">
-      <div class="animate-rise">
-        <p class="inline-flex items-center gap-2 rounded-full border border-line bg-white/[0.03] px-3 py-1.5 font-mono text-[10.5px] text-ink-2">
-          <span class="size-1.5 rounded-full bg-cyan"></span>
-          Open source · Sin cuenta · Sin tracking
+  <section class="hero-section">
+    <div class="hero">
+      <div class="container-page hero-grid">
+      <div class="hero-copy">
+        <h1>Bajá el video<br />o el audio.</h1>
+        <p class="lede mt-5">
+          YouTube, X, TikTok, Instagram y Facebook. Sin cuenta y sin subir enlaces.
         </p>
 
-        <h1 class="mt-5 font-display text-[38px] font-semibold leading-[1.04] tracking-[-0.035em] text-ink sm:text-[50px] lg:text-[56px]">
-          Bajá videos y <span class="text-gradient">audio</span> de tus redes.
-        </h1>
-
-        <p class="mt-5 max-w-[520px] text-[14.5px] leading-7 text-ink-2 md:text-[15.5px]">
-          YouTube, X, TikTok, Instagram y Facebook. Elegí resolución, formato y subtítulos antes de descargar. Todo se
-          procesa en tu equipo: tus enlaces no pasan por ningún servidor.
-        </p>
-
-        <div class="mt-7 flex flex-wrap items-center gap-2.5">
-          <a
-            href="/descargar"
-            class="inline-flex h-11 items-center gap-2 rounded-md bg-cyan px-5 text-[13px] font-semibold text-[#06212a] shadow-[0_10px_40px_-14px_rgba(0,229,255,0.6)] transition-colors duration-150 hover:bg-cyan-soft"
-          >
-            <span class="os-fallback">Descargar gratis</span>
-            <span class="os-label" data-for="windows">Descargar para Windows</span>
-            <span class="os-label" data-for="linux">Descargar para Linux</span>
-            <span class="os-label" data-for="macos">Descargar para macOS</span>
-            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"
-              stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <path d="M12 3v12" />
-              <path d="m7 11 5 5 5-5" />
-              <path d="M5 21h14" />
-            </svg>
-          </a>
-          <a
-            href={site.repo}
-            target="_blank"
-            rel="noreferrer noopener"
-            class="inline-flex h-11 items-center gap-2 rounded-md border border-line px-4 text-[13px] text-ink-2 transition-colors duration-150 hover:border-line-strong hover:bg-white/[0.03] hover:text-ink"
-          >
-            <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true">
-              <path
-                d="M12 .5C5.65.5.5 5.65.5 12c0 5.08 3.29 9.39 7.86 10.91.58.11.79-.25.79-.55v-1.93c-3.2.7-3.88-1.54-3.88-1.54-.52-1.33-1.28-1.68-1.28-1.68-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.23-1.28-5.23-5.68 0-1.26.45-2.29 1.19-3.1-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.79 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.12 3.05.74.81 1.18 1.84 1.18 3.1 0 4.41-2.69 5.38-5.25 5.67.41.36.78 1.06.78 2.14v3.17c0 .31.21.67.8.55A11.51 11.51 0 0 0 23.5 12C23.5 5.65 18.35.5 12 .5Z"
-              ></path>
-            </svg>
-            Ver en GitHub
-          </a>
-        </div>
-
-        <ul class="mt-6 flex flex-wrap items-center gap-x-5 gap-y-2 text-[11px] text-ink-3">
-          <li class="flex items-center gap-1.5"><span class="size-1 rounded-full bg-green"></span>Windows, Linux y macOS</li>
-          <li class="flex items-center gap-1.5"><span class="size-1 rounded-full bg-cyan"></span>Sin anuncios ni límites</li>
-          <li class="flex items-center gap-1.5"><span class="size-1 rounded-full bg-blue-soft"></span>Licencia MIT</li>
-        </ul>
-      </div>
-
-      <div class="relative">
-        <div class="pointer-events-none absolute -inset-6 rounded-[28px] bg-cyan/[0.05] blur-2xl" aria-hidden="true">
-        </div>
-
-        <div class="relative overflow-hidden rounded-xl border border-line-strong bg-surface shadow-card">
-          <div class="flex h-9 items-center gap-2 border-b border-line px-3.5">
-            <span class="size-2 rounded-full bg-white/15"></span>
-            <span class="size-2 rounded-full bg-white/15"></span>
-            <span class="size-2 rounded-full bg-white/15"></span>
-            <span class="ml-2 font-mono text-[9.5px] text-ink-3">Media Downloader · {release.tag}</span>
-          </div>
-          <Image
-            src={homeShot}
-            alt="Captura de Media Downloader: barra para pegar un enlace, selector de calidad, plataformas soportadas y cola de descargas."
-            widths={[520, 760, 1040]}
-            sizes="(min-width: 1024px) 520px, (min-width: 640px) 640px, 100vw"
-            format="webp"
-            quality={82}
-            loading="eager"
-            fetchpriority="high"
-            decoding="async"
-            class="block h-auto w-full"
-          />
-        </div>
-
-        <div
-          class="absolute -bottom-5 left-3 w-[250px] rounded-lg border border-line-strong bg-elevated/95 p-3 shadow-[0_18px_50px_-16px_rgba(0,0,0,0.9)] backdrop-blur sm:-left-5"
-        >
-          <div class="flex items-center gap-2">
-            <span class="grid size-5 place-items-center rounded-full bg-green/15 text-green">
-              <svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="3"
-                stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <path d="m5 13 4 4L19 7" />
-              </svg>
-            </span>
-            <p class="text-[10.5px] font-medium text-ink">Descarga completada</p>
-            <span class="ml-auto font-mono text-[9px] text-ink-3">13.2 MB</span>
-          </div>
-          <div class="mt-2 h-1 overflow-hidden rounded-full bg-white/10">
-            <div class="h-full w-full rounded-full bg-cyan"></div>
-          </div>
-          <p class="mt-2 text-[9.5px] text-ink-3">1280 × 1590 · MP4 · X</p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Platforms -->
-  <section id="plataformas" class="border-t border-line py-14 md:py-20">
-    <div class="container-page">
-      <div class="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
-        <div>
-          <p class="font-mono text-[10.5px] uppercase tracking-[0.16em] text-cyan/80">Plataformas</p>
-          <h2 class="mt-2 font-display text-[26px] font-semibold tracking-[-0.02em] text-ink md:text-[32px]">
-            Una app, cinco plataformas
-          </h2>
-        </div>
-        <p class="max-w-[420px] text-[12.5px] leading-6 text-ink-3">
-          Detecta el enlace solo. Si la plataforma cambia, yt-dlp se actualiza con la app.
-        </p>
-      </div>
-
-      <div class="mt-7 grid grid-cols-2 gap-2.5 sm:grid-cols-3 lg:grid-cols-5">
-        {
-          platforms.map((platform) => (
-            <div class="flex flex-col rounded-lg border border-line bg-surface/40 p-3.5 transition-colors duration-150 hover:border-line-strong">
-              <span
-                class:list={['grid size-8 place-items-center rounded-md border', `platform-${platform.id}`]}
-              >
-                <BrandIcon platform={platform.id} size={16} />
-              </span>
-              <p class="mt-3 text-[12.5px] font-medium text-ink">{platform.name}</p>
-              <p class="mt-0.5 font-mono text-[9.5px] leading-4 text-ink-3">{platform.detail}</p>
-            </div>
-          ))
-        }
-      </div>
-    </div>
-  </section>
-
-  <!-- Features -->
-  <section id="funciones" class="border-t border-line bg-surface/20 py-14 md:py-24">
-    <div class="container-page">
-      <div class="max-w-[640px]">
-        <p class="font-mono text-[10.5px] uppercase tracking-[0.16em] text-cyan/80">Funciones</p>
-        <h2 class="mt-2 font-display text-[26px] font-semibold tracking-[-0.02em] text-ink md:text-[34px]">
-          Lo necesario para bajar lo que querés, sin relleno
-        </h2>
-        <p class="mt-3 text-[13.5px] leading-6 text-ink-3">
-          Sin anuncios, sin cuentas y sin pasos de más. La cola y la biblioteca están pensadas para uso diario, no para
-          una demo.
-        </p>
-      </div>
-
-      <div class="mt-8 grid gap-2.5 sm:grid-cols-2 lg:grid-cols-3">
-        {
-          features.map((feature) => (
-            <article class="group rounded-xl border border-line bg-surface/45 p-5 transition-colors duration-200 hover:border-cyan/25">
-              <span class="grid size-9 place-items-center rounded-lg border border-cyan/20 bg-cyan/[0.06] text-cyan">
-                <FeatureIcon name={feature.icon} />
-              </span>
-              <h3 class="mt-4 font-display text-[14.5px] font-semibold text-ink">{feature.title}</h3>
-              <p class="mt-1.5 text-[12px] leading-5 text-ink-3">{feature.body}</p>
-            </article>
-          ))
-        }
-      </div>
-    </div>
-  </section>
-
-  <!-- How it works + second screenshot -->
-  <section id="como-funciona" class="border-t border-line py-14 md:py-24">
-    <div class="container-page grid gap-12 lg:grid-cols-[1fr_1.05fr] lg:items-center">
-      <div>
-        <p class="font-mono text-[10.5px] uppercase tracking-[0.16em] text-cyan/80">Cómo funciona</p>
-        <h2 class="mt-2 font-display text-[26px] font-semibold tracking-[-0.02em] text-ink md:text-[34px]">
-          Tres pasos, cero curva de aprendizaje
-        </h2>
-
-        <ol class="mt-7 space-y-0">
+        <div class="hero-actions">
           {
-            steps.map((step, index) => (
-              <li class="relative flex gap-4 pb-7 last:pb-0">
-                {index < steps.length - 1 && (
-                  <span class="absolute left-[13px] top-8 h-[calc(100%-1.5rem)] w-px bg-line" aria-hidden="true" />
-                )}
-                <span class="relative z-10 grid size-7 shrink-0 place-items-center rounded-full border border-cyan/25 bg-bg font-mono text-[10px] text-cyan">
-                  {step.number}
-                </span>
-                <div class="pt-0.5">
-                  <h3 class="font-display text-[14px] font-semibold text-ink">{step.title}</h3>
-                  <p class="mt-1 text-[12px] leading-5 text-ink-3">{step.body}</p>
-                </div>
-              </li>
-            ))
+            windows && (
+              <a class="key key--primary os-key" data-os="windows" href={windows.url}>
+                Windows
+              </a>
+            )
           }
-        </ol>
+          {
+            linux && (
+              <a class="key os-key" data-os="linux" href={linux.url}>
+                Linux
+              </a>
+            )
+          }
+          {
+            macos && (
+              <a class="key os-key" data-os="macos" href={macos.url}>
+                macOS
+              </a>
+            )
+          }
+        </div>
+
+        <div class="hero-meta">
+          <span>Instaladores con yt-dlp y ffmpeg</span>
+          <span>Windows 10/11, Linux x64, macOS arm64</span>
+        </div>
       </div>
 
-      <div class="relative">
-        <div class="absolute -inset-4 rounded-2xl bg-blue/[0.07] blur-2xl" aria-hidden="true"></div>
-        <div class="relative overflow-hidden rounded-xl border border-line bg-surface shadow-card">
-          <div class="flex h-8 items-center gap-1.5 border-b border-line px-3">
-            <span class="size-1.5 rounded-full bg-white/15"></span>
-            <span class="size-1.5 rounded-full bg-white/15"></span>
-            <span class="size-1.5 rounded-full bg-white/15"></span>
-            <span class="ml-2 font-mono text-[9px] text-ink-3">cola · progreso real</span>
+      <div class="hero-visual">
+        <figure class="figure relative z-10">
+          <div class="cut screenshot-frame">
+            <Image
+              src={queueShot}
+              alt="Cola de Media Downloader con una descarga de X completada y su tamaño."
+              widths={[480, 720, 960]}
+              sizes="(min-width: 1024px) 600px, 100vw"
+              format="webp"
+              quality={82}
+              loading="eager"
+              fetchpriority="high"
+              decoding="async"
+              class="screenshot"
+            />
           </div>
-          <Image
-            src={queueShot}
-            alt="Captura de la cola de Media Downloader con una descarga de X completada, velocidad y tamaño del archivo."
-            widths={[520, 760]}
-            sizes="(min-width: 1024px) 540px, 100vw"
-            format="webp"
-            quality={80}
-            loading="lazy"
-            decoding="async"
-            class="block h-auto w-full"
-          />
+          <figcaption>La cola real, con una descarga de X completada.</figcaption>
+        </figure>
+      </div>
+    </div>
+  </div>
+
+    <div class="field-band" aria-hidden="true">
+      <div class="container-page">
+        <pre class="field">{field}</pre>
+      </div>
+    </div>
+  </section>
+
+  <section id="producto" class="section--l">
+    <div class="container-page">
+      <div class="split">
+        <div class="split__copy">
+          <h2>De un enlace a un archivo.</h2>
+          <p class="lede mt-4">
+            Elegí resolución, formato y subtítulos. La cola hace el resto.
+          </p>
         </div>
-        <div class="mt-3 flex items-center justify-between font-mono text-[10px] text-ink-3">
-          <span>2 activas · 1 en cola</span>
-          <span class="flex items-center gap-1.5"><span class="size-1.5 rounded-full bg-green"></span>4.2 MB/s</span>
+        <div class="split__body">
+          <div class="mapping graphite" aria-label="Ejemplo real de una descarga de X">
+            <div class="mapping__pane">
+              <p class="label text-graphite-muted">Entrada</p>
+              <p class="mono mt-3 break-all text-sm text-graphite-ink">
+                https://x.com/DonShelby_/status/2116216248291754237
+              </p>
+              <p class="mt-3 text-sm text-graphite-muted">X, 1280 x 1590</p>
+            </div>
+            <div class="mapping__pane">
+              <p class="label text-graphite-muted">Salida</p>
+              <p class="mt-3 font-display text-title text-graphite-ink">Muy Zidanesca esta acción.</p>
+              <p class="mt-2 text-sm text-graphite-muted">Don Shelby, X</p>
+              <p class="mono mt-3 text-sm text-accent-2">MP4, 13.2 MB</p>
+            </div>
+          </div>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- Static / privacy band -->
-  <section class="border-t border-line bg-surface/25 py-12">
-    <div class="container-page grid gap-6 md:grid-cols-[1.1fr_1fr] md:items-center">
-      <div>
-        <p class="font-mono text-[10.5px] uppercase tracking-[0.16em] text-cyan/80">Sin servidores en el medio</p>
-        <h2 class="mt-2 font-display text-[22px] font-semibold tracking-[-0.02em] text-ink md:text-[26px]">
-          Esta web es estática. La app trabaja en tu equipo.
-        </h2>
+  <section class="section">
+    <div class="container-page">
+      <h2>El producto, en marcha.</h2>
+      <p class="lede mt-4 max-w-[56ch]">
+        La cola muestra progreso, pausa y archivos terminados. El conversor y la biblioteca están a un clic.
+      </p>
+
+      <div class="mt-8 grid grid-cols-1 gap-8 md:grid-cols-12">
+        <figure class="figure md:col-span-8">
+          <div class="cut screenshot-frame">
+            <Image
+              src={homeShot}
+              alt="Pantalla de descarga de Media Downloader con la barra para pegar un enlace y el selector de calidad."
+              widths={[560, 840, 1120]}
+              sizes="(min-width: 1024px) 860px, 100vw"
+              format="webp"
+              quality={80}
+              loading="lazy"
+              decoding="async"
+              class="screenshot"
+            />
+          </div>
+          <figcaption>Pegá el enlace. La app detecta la plataforma y los formatos.</figcaption>
+        </figure>
+
+        <div class="flex flex-col gap-8 md:col-span-4">
+          <figure class="figure">
+            <div class="cut screenshot-frame">
+              <Image
+                src={converterShot}
+                alt="Pantalla del conversor de Media Downloader con un archivo local listo para convertir."
+                widths={[320, 480, 640]}
+                sizes="(min-width: 1024px) 420px, 100vw"
+                format="webp"
+                quality={80}
+                loading="lazy"
+                decoding="async"
+                class="screenshot"
+              />
+            </div>
+            <figcaption>Conversor: cambia el contenedor sin volver a bajar.</figcaption>
+          </figure>
+          <figure class="figure">
+            <div class="cut screenshot-frame">
+              <Image
+                src={libraryShot}
+                alt="Biblioteca de Media Downloader con archivos descargados y su información."
+                widths={[320, 480, 640]}
+                sizes="(min-width: 1024px) 420px, 100vw"
+                format="webp"
+                quality={80}
+                loading="lazy"
+                decoding="async"
+                class="screenshot"
+              />
+            </div>
+            <figcaption>Biblioteca: todo lo descargado, en un solo lugar.</figcaption>
+          </figure>
+        </div>
       </div>
-      <div class="grid gap-2 text-[12px] leading-5 text-ink-3 sm:grid-cols-2">
-        <p class="rounded-lg border border-line px-3.5 py-3">
-          <span class="mb-1 block font-mono text-[9.5px] uppercase tracking-[0.1em] text-cyan/80">La web</span>
-          HTML, CSS e imágenes servidos desde el edge. No hay backend ni recibe tus enlaces.
+    </div>
+  </section>
+
+  <section id="plataformas" class="section--s">
+    <div class="container-page">
+      <div class="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+        <h2>Cinco plataformas. Un flujo.</h2>
+        <p class="lede max-w-[44ch]">
+          La misma cola para YouTube, X, TikTok, Instagram y Facebook.
         </p>
-        <p class="rounded-lg border border-line px-3.5 py-3">
-          <span class="mb-1 block font-mono text-[9.5px] uppercase tracking-[0.1em] text-cyan/80">La app</span>
-          yt-dlp y ffmpeg corren localmente. Ajustes e historial se guardan en tu equipo.
+      </div>
+
+      <div class="mt-8 overflow-x-auto">
+        <table class="ledger" aria-label="Plataformas soportadas">
+          <thead>
+            <tr>
+              <th scope="col">Plataforma</th>
+              <th scope="col">Qué baja</th>
+              <th scope="col">Formatos</th>
+            </tr>
+          </thead>
+          <tbody>
+            {
+              platforms.map((platform) => (
+                <tr>
+                  <th scope="row" class="font-display text-title font-medium text-ink">
+                    {platform.name}
+                  </th>
+                  <td>{platform.what}</td>
+                  <td class="mono">{platform.formats}</td>
+                </tr>
+              ))
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section class="section--s bg-paper-2">
+    <div class="container-page split">
+      <div class="split__copy">
+        <h2>La web no ve tus enlaces.</h2>
+      </div>
+      <div class="split__body">
+        <p class="lede">
+          Esta página es estática. La app descarga con yt-dlp en tu equipo; los ajustes y el historial se guardan ahí.
+        </p>
+        <p class="mt-4 text-sm text-muted">
+          Sin cuentas, sin analytics y sin servidores propios.
+          <a href="/privacidad">Cómo se manejan los datos</a>.
         </p>
       </div>
     </div>
@@ -316,48 +295,30 @@ const faqPage = {
 
   <DownloadSection />
 
-  <!-- FAQ -->
-  <section id="faq" class="border-t border-line py-14 md:py-20">
-    <div class="container-page grid gap-8 lg:grid-cols-[0.8fr_1.2fr]">
-      <div>
-        <p class="font-mono text-[10.5px] uppercase tracking-[0.16em] text-cyan/80">FAQ</p>
-        <h2 class="mt-2 font-display text-[26px] font-semibold tracking-[-0.02em] text-ink md:text-[32px]">
-          Preguntas frecuentes
-        </h2>
-        <p class="mt-3 text-[12.5px] leading-6 text-ink-3">
-          ¿Falta algo? Abrí un issue en <a href={site.repo} class="text-ink-2 underline decoration-line underline-offset-2 transition-colors hover:text-cyan" target="_blank" rel="noreferrer noopener">GitHub</a>.
+  <section id="preguntas" class="section">
+    <div class="container-page split">
+      <div class="split__copy">
+        <h2>Antes de instalar.</h2>
+        <p class="lede mt-4">Lo que conviene saber antes de bajar el instalador.</p>
+        <p class="mt-4 text-sm">
+          ¿Falta algo? <a href={site.repo} target="_blank" rel="noreferrer noopener">Abrí un issue en GitHub</a>.
         </p>
       </div>
-      <Faq />
+      <div class="split__body">
+        <Faq />
+      </div>
     </div>
   </section>
 
-  <!-- Final CTA -->
-  <section class="border-t border-line py-14 md:py-20">
-    <div class="container-page">
-      <div class="relative overflow-hidden rounded-xl border border-cyan/20 bg-gradient-to-br from-surface to-bg px-6 py-10 text-center md:px-10 md:py-14">
-        <div class="pointer-events-none absolute left-1/2 top-0 h-40 w-[420px] -translate-x-1/2 rounded-full bg-cyan/10 blur-[80px]" aria-hidden="true">
-        </div>
-        <p class="relative font-mono text-[10.5px] uppercase tracking-[0.16em] text-cyan/80">Descarga {release.tag}</p>
-        <h2 class="relative mt-3 font-display text-[26px] font-semibold tracking-[-0.02em] text-ink md:text-[34px]">
-          Listo para bajar lo que quieras.
-        </h2>
-        <p class="relative mx-auto mt-2 max-w-[440px] text-[12.5px] leading-6 text-ink-3">
-          Instalá, pegá un enlace y elegí la calidad. Sin cuenta ni configuración previa.
-        </p>
-        <div class="relative mt-6 flex flex-wrap justify-center gap-2.5">
-          <a href="/descargar" class="inline-flex h-11 items-center rounded-md bg-cyan px-5 text-[13px] font-semibold text-[#06212a] transition-colors hover:bg-cyan-soft">
-            Ir a descargas
-          </a>
-          <a
-            href={site.repo}
-            target="_blank"
-            rel="noreferrer noopener"
-            class="inline-flex h-11 items-center rounded-md border border-line px-4 text-[13px] text-ink-2 transition-colors hover:border-line-strong hover:text-ink"
-          >
-            Ver el código
-          </a>
-        </div>
+  <section class="section--s">
+    <div class="container-page flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
+      <div>
+        <h2>Descargá. Pegá. Elegí.</h2>
+        <p class="lede mt-4">Windows, Linux y macOS. Sin cuenta y sin configuración previa.</p>
+      </div>
+      <div class="flex flex-wrap items-center gap-2">
+        <a class="key key--primary" href="/descargar">Descargar</a>
+        <a class="key key--ghost" href={site.repo} target="_blank" rel="noreferrer noopener">Ver el código</a>
       </div>
     </div>
   </section>

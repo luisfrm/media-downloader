@@ -2,23 +2,15 @@
 import { faqs } from '../data/site'
 ---
 
-<div class="mt-8 divide-y divide-line rounded-xl border border-line bg-surface/35">
+<div class="faq">
   {
-    faqs.map((item, index) => (
-      <details class="group px-5 py-4" open={index === 0}>
-        <summary class="flex cursor-pointer list-none items-center justify-between gap-4 text-[13.5px] font-medium text-ink transition-colors hover:text-cyan [&::-webkit-details-marker]:hidden">
+    faqs.map((item) => (
+      <details>
+        <summary>
           <span>{item.q}</span>
-          <span
-            class="grid size-6 shrink-0 place-items-center rounded-full border border-line text-ink-3 transition-transform duration-200 group-open:rotate-45 group-open:border-cyan/30 group-open:text-cyan"
-            aria-hidden="true"
-          >
-            <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"
-              stroke-linecap="round">
-              <path d="M12 5v14M5 12h14" />
-            </svg>
-          </span>
+          <span class="faq-plus" aria-hidden="true">+</span>
         </summary>
-        <p class="mt-2.5 max-w-[720px] pr-8 text-[12.5px] leading-6 text-ink-3">{item.a}</p>
+        <p>{item.a}</p>
       </details>
     ))
   }

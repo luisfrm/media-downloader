@@ -22,8 +22,30 @@ HTML estático y solo envía el JavaScript mínimo (hoy: un script de ~300 bytes
 detecta el sistema operativo). Un SPA de React enviaría el runtime completo para
 mostrar texto, y el HTML inicial llegaría vacío a los crawlers.
 
-El repo ya usa Vite 8 y Tailwind v4, así que Astro reutiliza el mismo motor y los
-mismos tokens de `DESIGN.md`. No hay islas de React: no hacen falta.
+El repo ya usa Vite 8 y Tailwind v4, así que Astro reutiliza el mismo motor. La
+landing no copia los tokens de la app: es una superficie de marketing con su propio
+tema (Cobalt), mientras `DESIGN.md` sigue gobernando la interfaz de escritorio.
+
+## Diseño: Cobalt
+
+El tema se eligió con el `theme.mjs` de Hallmark (1 de 3): papel frío casi blanco,
+tinta azul gris, un solo cobalto eléctrico, **Familjen Grotesk** para titulares,
+**IBM Plex Sans** para texto y **JetBrains Mono** para valores de máquina.
+
+- La página sigue la anatomía **try** de un producto de escritorio: la acción de
+  descarga por sistema en el hero, el producto en marcha con capturas reales, las
+  plataformas, la tabla de descargas, la privacidad, las preguntas y una banda final
+  con la descarga otra vez.
+- La firma es la **cola real** con una descarga de X completada, no un mockup.
+- El campo ASCII del hero es tráfico real del producto (plataformas, formatos,
+  tamaños), no un fondo decorativo.
+- Sin degradados en títulos, sin barras de navegador dibujadas, sin etiquetas en
+  mayúsculas con tracking y sin puntos de estado decorativos.
+- Los controles son keycaps con transición de `transform`, `box-shadow` y color;
+  `prefers-reduced-motion` las reduce a cero.
+- La shared image se regenera con el mismo tema y la misma captura.
+
+La estructura y el sitemap no cambiaron: `/`, `/descargar`, `/privacidad`, `/404`.
 
 ## Por qué Workers Static Assets y no R2
 

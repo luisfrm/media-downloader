@@ -1,10 +1,10 @@
 ﻿#!/usr/bin/env node
 /**
- * Generates the shared image (Open Graph / Twitter card) and the icons.
+ * Cobalt shared image and icons.
  *
- * Everything is rendered locally at build time with Satori + resvg, so the
- * image is byte-identical on every machine and the landing never has to run a
- * Worker just to serve a social preview.
+ * The page, the OG card and the icons are one system: cool paper, cobalt,
+ * Familjen Grotesk over IBM Plex Sans, JetBrains Mono for machine values.
+ * Everything is rendered at build time, so the Worker only serves bytes.
  */
 import { readFile, writeFile, mkdir } from 'node:fs/promises'
 import path from 'node:path'
@@ -18,108 +18,136 @@ const fontDir = path.join(root, 'src/assets/fonts')
 const publicDir = path.join(root, 'public')
 const iconFile = path.join(root, 'src/assets/app-icon.png')
 
-const [geist400, geist600, inter400, inter600, mono400] = await Promise.all(
-  ['Geist-Regular.ttf', 'Geist-SemiBold.ttf', 'Inter-Regular.ttf', 'Inter-SemiBold.ttf', 'JetBrainsMono-Regular.ttf'].map(
-    (name) => readFile(path.join(fontDir, name)),
-  ),
+const [familjen600, familjen500, plex400, plex500, mono400] = await Promise.all(
+  [
+    'FamiljenGrotesk-SemiBold.ttf',
+    'FamiljenGrotesk-Medium.ttf',
+    'IBMPlexSans-Regular.ttf',
+    'IBMPlexSans-Medium.ttf',
+    'JetBrainsMono-Regular.ttf',
+  ].map((name) => readFile(path.join(fontDir, name))),
 )
 
-const screenshot = await sharp(path.join(root, 'src/assets/app-home.png'))
-  .extract({ left: 238, top: 0, width: 942, height: 644 })
-  .resize(496, 340, { fit: 'cover' })
+const screenshot = await sharp(path.join(root, 'src/assets/app-queue.png'))
+  .extract({ left: 240, top: 0, width: 1200, height: 750 })
+  .resize(520, 325, { fit: 'cover' })
   .png({ compressionLevel: 9 })
   .toBuffer()
 
-const icon = await sharp(iconFile).resize(120, 120).png({ compressionLevel: 9 }).toBuffer()
-
-const colors = {
-  bg: '#0B111E',
-  surface: '#111A2E',
-  ink: '#DDE2F5',
-  ink2: '#BAC9CC',
-  ink3: '#849396',
-  cyan: '#00E5FF',
-  line: 'rgba(255,255,255,0.10)',
-}
-
+const icon = await sharp(iconFile).resize(112, 112).png({ compressionLevel: 9 }).toBuffer()
 const dataUri = (buffer) => `data:image/png;base64,${buffer.toString('base64')}`
 
-function chip(label, dot) {
-  return {
-    type: 'div',
-    props: {
-      style: {
-        display: 'flex',
-        alignItems: 'center',
-        gap: 8,
-        padding: '8px 14px',
-        borderRadius: 9999,
-        border: `1px solid ${colors.line}`,
-        backgroundColor: 'rgba(255,255,255,0.03)',
-        fontSize: 17,
-        color: colors.ink2,
-        fontFamily: 'Inter',
-      },
-      children: [
-        { type: 'div', props: { style: { width: 7, height: 7, borderRadius: 9999, backgroundColor: dot } } },
-        { type: 'span', props: { children: label } },
-      ],
-    },
-  }
+const colors = {
+  paper: '#F7F9FC',
+  paper2: '#EFF2F7',
+  ink: '#171B22',
+  ink2: '#3C414B',
+  muted: '#6B7280',
+  rule: '#E1E5EC',
+  accent: '#1F4FD8',
+  accentInk: '#F7F9FC',
+  graphite: '#1B1F27',
+  graphiteInk: '#E9EDF5',
+  glyph: '#AFC4EA',
 }
 
-function text(value, style) {
-  return { type: 'div', props: { style, children: value } }
-}
+const field = [
+  'x.com/DonShelby_/status/2116216248  mp4 1280x1590  13.2 MB',
+  'youtube.com/watch  mp4 3840x2160  vtt es',
+  'tiktok.com/@  mp4 1080x1920  sin marca de agua',
+  'instagram.com/reel  mp4 1080x1350  carrusel',
+  'facebook.com/watch  mp4 1280x720  reels',
+  'mp3 320  flac  m4a  wav  opus',
+  'windows-x64  70.6 MB  linux-x64  142 MB  macos-arm64  37.9 MB',
+  'x.com/DonShelby_/status/2116216248  mp4 1280x1590  13.2 MB',
+  'youtube.com/watch  mp4 3840x2160  vtt es',
+  'tiktok.com/@  mp4 1080x1920  sin marca de agua',
+  'instagram.com/reel  mp4 1080x1350  carrusel',
+  'facebook.com/watch  mp4 1280x720  reels',
+  'mp3 320  flac  m4a  wav  opus',
+  'windows-x64  70.6 MB  linux-x64  142 MB  macos-arm64  37.9 MB',
+].join('\n')
 
 const og = {
   type: 'div',
   props: {
     style: {
       display: 'flex',
-      alignItems: 'flex-start',
-      gap: 16,
       width: 1200,
       height: 630,
-      backgroundColor: colors.bg,
-      backgroundImage:
-        'radial-gradient(circle at 88% 8%, rgba(0,229,255,0.22), rgba(11,17,30,0) 46%), radial-gradient(circle at 8% 100%, rgba(37,99,235,0.20), rgba(11,17,30,0) 45%)',
-      padding: 52,
-      fontFamily: 'Inter',
+      backgroundColor: colors.paper,
       color: colors.ink,
+      fontFamily: 'IBM Plex Sans',
+      padding: 56,
+      position: 'relative',
+      overflow: 'hidden',
     },
     children: [
       {
         type: 'div',
         props: {
-          style: { display: 'flex', flexDirection: 'column', width: 576, height: 526 },
+          style: {
+            position: 'absolute',
+            left: 540,
+            top: 24,
+            width: 660,
+            height: 582,
+            overflow: 'hidden',
+            opacity: 0.7,
+          },
+          children: {
+            type: 'div',
+            props: {
+              style: {
+                fontFamily: 'JetBrains Mono',
+                fontSize: 11,
+                lineHeight: '16px',
+                color: colors.glyph,
+                whiteSpace: 'pre',
+              },
+              children: field,
+            },
+          },
+        },
+      },
+      {
+        type: 'div',
+        props: {
+          style: { display: 'flex', flexDirection: 'column', width: 500, height: '100%' },
           children: [
             {
               type: 'div',
               props: {
-                style: { display: 'flex', alignItems: 'center', gap: 16 },
+                style: { display: 'flex', alignItems: 'center', gap: 14 },
                 children: [
                   {
                     type: 'img',
-                    props: { src: dataUri(icon), width: 60, height: 60, style: { borderRadius: 15 } },
+                    props: { src: dataUri(icon), width: 54, height: 54, style: { borderRadius: 12 } },
                   },
                   {
                     type: 'div',
                     props: {
                       style: { display: 'flex', flexDirection: 'column' },
                       children: [
-                        text('Media Downloader', {
-                          fontFamily: 'Geist',
-                          fontWeight: 600,
-                          fontSize: 27,
-                          lineHeight: 1.1,
-                        }),
-                        text('yt-dlp + ffmpeg · todo local', {
-                          fontFamily: 'JetBrainsMono',
-                          fontSize: 13,
-                          color: colors.ink3,
-                          marginTop: 3,
-                        }),
+                        {
+                          type: 'div',
+                          props: {
+                            style: { fontFamily: 'Familjen Grotesk', fontWeight: 600, fontSize: 25, lineHeight: 1.1 },
+                            children: 'Media Downloader',
+                          },
+                        },
+                        {
+                          type: 'div',
+                          props: {
+                            style: {
+                              fontFamily: 'JetBrains Mono',
+                              fontSize: 12,
+                              color: colors.muted,
+                              marginTop: 3,
+                            },
+                            children: 'yt-dlp + ffmpeg',
+                          },
+                        },
                       ],
                     },
                   },
@@ -132,46 +160,24 @@ const og = {
                 style: {
                   display: 'flex',
                   flexDirection: 'column',
-                  marginTop: 44,
-                  fontFamily: 'Geist',
+                  marginTop: 42,
+                  fontFamily: 'Familjen Grotesk',
                   fontWeight: 600,
-                  fontSize: 56,
-                  lineHeight: 1.06,
+                  fontSize: 58,
+                  lineHeight: 1.02,
                   letterSpacing: '-0.03em',
                 },
                 children: [
-                  { type: 'div', props: { style: { display: 'flex' }, children: 'Bajá videos y' } },
-                  {
-                    type: 'div',
-                    props: {
-                      style: { display: 'flex' },
-                      children: [
-                        { type: 'span', props: { style: { color: colors.cyan }, children: 'audio' } },
-                        { type: 'span', props: { children: '\u00A0de tus redes.' } },
-                      ],
-                    },
-                  },
+                  { type: 'div', props: { style: { display: 'flex' }, children: 'Bajá el video' } },
+                  { type: 'div', props: { style: { display: 'flex' }, children: 'o el audio.' } },
                 ],
               },
             },
             {
               type: 'div',
               props: {
-                style: { marginTop: 16, fontSize: 21, lineHeight: 1.45, color: colors.ink2, maxWidth: 540 },
-                children: 'Elegí resolución, formato y subtítulos. Sin cuenta, sin anuncios y sin subir nada a un servidor.',
-              },
-            },
-            {
-              type: 'div',
-              props: {
-                style: { display: 'flex', gap: 8, marginTop: 26 },
-                children: [
-                  chip('YouTube', '#FF0033'),
-                  chip('X', '#E7E9EA'),
-                  chip('TikTok', '#25F4EE'),
-                  chip('Instagram', '#E1306C'),
-                  chip('Facebook', '#1877F2'),
-                ],
+                style: { marginTop: 16, fontSize: 21, lineHeight: 1.45, color: colors.ink2, maxWidth: 430 },
+                children: 'Windows, Linux y macOS. Sin cuenta y sin subir enlaces.',
               },
             },
             {
@@ -180,18 +186,33 @@ const og = {
                 style: {
                   display: 'flex',
                   alignItems: 'center',
-                  gap: 14,
-                  marginTop: 26,
-                  fontFamily: 'JetBrainsMono',
-                  fontSize: 15,
-                  color: colors.ink3,
+                  marginTop: 30,
+                  height: 52,
+                  paddingLeft: 24,
+                  paddingRight: 24,
+                  width: 200,
+                  borderRadius: 6,
+                  backgroundColor: colors.accent,
+                  color: colors.accentInk,
+                  fontFamily: 'Familjen Grotesk',
+                  fontWeight: 500,
+                  fontSize: 18,
+                  justifyContent: 'center',
                 },
-                children: [
-                  { type: 'div', props: { style: { width: 7, height: 7, borderRadius: 9999, backgroundColor: colors.cyan } } },
-                  { type: 'span', props: { children: 'Windows · Linux · macOS' } },
-                  { type: 'span', props: { children: '·' } },
-                  { type: 'span', props: { children: 'Open source' } },
-                ],
+                children: 'Descargar',
+              },
+            },
+            {
+              type: 'div',
+              props: {
+                style: {
+                  display: 'flex',
+                  alignItems: 'center',
+                  marginTop: 26,
+                  fontSize: 14,
+                  color: colors.muted,
+                },
+                children: 'Instaladores con yt-dlp y ffmpeg',
               },
             },
           ],
@@ -201,44 +222,43 @@ const og = {
         type: 'div',
         props: {
           style: {
+            position: 'absolute',
+            left: 602,
+            top: 132,
             display: 'flex',
             flexDirection: 'column',
-            width: 496,
-            marginTop: 18,
-            borderRadius: 18,
-            border: `1px solid rgba(255,255,255,0.14)`,
-            backgroundColor: colors.surface,
-            boxShadow: '0 40px 90px -30px rgba(0,0,0,0.9), 0 0 0 1px rgba(0,229,255,0.08)',
-            overflow: 'hidden',
+            width: 536,
+            padding: 8,
+            border: `1px solid ${colors.rule}`,
+            borderRadius: 8,
+            backgroundColor: colors.paper,
+            boxShadow: '0 20px 50px -30px rgba(23,27,34,0.45)',
           },
           children: [
+            {
+              type: 'img',
+              props: {
+                src: dataUri(screenshot),
+                width: 520,
+                height: 325,
+                style: { objectFit: 'cover', borderRadius: 4 },
+              },
+            },
             {
               type: 'div',
               props: {
                 style: {
                   display: 'flex',
-                  alignItems: 'center',
-                  gap: 8,
-                  height: 38,
-                  padding: '0 16px',
-                  borderRadius: 2,
-                  borderBottom: `1px solid ${colors.line}`,
+                  justifyContent: 'space-between',
+                  paddingTop: 8,
+                  fontFamily: 'JetBrains Mono',
+                  fontSize: 10,
+                  color: colors.muted,
                 },
-                children: [0, 1, 2].map(() => ({
-                  type: 'div',
-                  props: {
-                    style: { width: 9, height: 9, borderRadius: 9999, backgroundColor: 'rgba(255,255,255,0.18)' },
-                  },
-                })),
-              },
-            },
-            {
-              type: 'img',
-              props: {
-                src: dataUri(screenshot),
-                width: 496,
-                height: 340,
-                style: { objectFit: 'cover' },
+                children: [
+                  { type: 'span', props: { children: 'cola real, descarga de X completada' } },
+                  { type: 'span', props: { children: 'MP4 1280x1590' } },
+                ],
               },
             },
           ],
@@ -253,15 +273,15 @@ async function renderPng(node, width) {
     width,
     height: width === 1200 ? 630 : width,
     fonts: [
-      { name: 'Geist', data: geist400, weight: 400, style: 'normal' },
-      { name: 'Geist', data: geist600, weight: 600, style: 'normal' },
-      { name: 'Inter', data: inter400, weight: 400, style: 'normal' },
-      { name: 'Inter', data: inter600, weight: 600, style: 'normal' },
-      { name: 'JetBrainsMono', data: mono400, weight: 400, style: 'normal' },
+      { name: 'Familjen Grotesk', data: familjen600, weight: 600, style: 'normal' },
+      { name: 'Familjen Grotesk', data: familjen500, weight: 500, style: 'normal' },
+      { name: 'IBM Plex Sans', data: plex400, weight: 400, style: 'normal' },
+      { name: 'IBM Plex Sans', data: plex500, weight: 500, style: 'normal' },
+      { name: 'JetBrains Mono', data: mono400, weight: 400, style: 'normal' },
     ],
   })
   // resvg 2.6 cannot parse the empty masks Satori emits for fully rounded
-  // corners (the three window dots). Dropping them keeps the clip radius.
+  // corners. Dropping them keeps the clip radius.
   const sanitized = svg.replace(/ mask="url\(#[^"]*\)"/g, '').replace(/<mask[\s\S]*?<\/mask>/g, '')
   return new Resvg(sanitized, { fitTo: { mode: 'width', value: width } }).render().asPng()
 }

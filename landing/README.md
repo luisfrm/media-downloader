@@ -1,7 +1,9 @@
 # Media Downloader — landing
 
 Sitio estático (Astro 7 + Tailwind v4) con la información del producto y las
-descargas por sistema. Se publica en Cloudflare Workers como assets, sin backend.
+descargas por sistema. Tema **Cobalt**: papel frío, cobalto, Familjen Grotesk,
+IBM Plex Sans y JetBrains Mono. Se publica en Cloudflare Workers como assets, sin
+backend.
 
 - Documentación completa: [`docs/LANDING.md`](../docs/LANDING.md)
 - Deploy: `pnpm deploy` (después de `wrangler login`)
