@@ -1,0 +1,10 @@
+# Keep the landing self-contained: its own lockfile and node_modules.
+# The desktop app has a separate toolchain and CI pipeline.
+packages:
+  - '.'
+allowBuilds:
+  esbuild: true
+  workerd: true
+minimumReleaseAgeExclude:
+  - miniflare@5.20261101.0-beta
+  - wrangler@4.156.1

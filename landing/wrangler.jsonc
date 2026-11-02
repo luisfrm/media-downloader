@@ -1,0 +1,17 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "media-downloader-landing",
+  "compatibility_date": "2026-10-01",
+
+  // Assets-only Worker: no `main` entrypoint and no bindings.
+  // Requests for these files are served by Cloudflare's static asset layer and
+  // do not count as Worker invocations.
+  "assets": {
+    "directory": "./dist",
+    "html_handling": "auto-trailing-slash",
+    "not_found_handling": "404-page"
+  },
+
+  // Custom domain (optional). Add the zone to Cloudflare first:
+  // "routes": [{ "pattern": "media-downloader.dev", "custom_domain": true }]
+}

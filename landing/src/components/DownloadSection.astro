@@ -1,0 +1,79 @@
+---
+import DownloadCard from './DownloadCard.astro'
+import { downloads, site } from '../data/site'
+import { release, releaseDate } from '../lib/release'
+
+interface Props {
+  heading?: string
+  intro?: string
+  compact?: boolean
+}
+
+const {
+  heading = 'Descargá para tu sistema',
+  intro = 'Instaladores para Windows, Linux y macOS. Incluyen yt-dlp y ffmpeg: no hace falta instalar nada más.',
+  compact = false,
+} = Astro.props
+---
+
+<section id="descargas" class:list={['relative border-t border-line py-16 md:py-24', compact && 'py-10 md:py-14']}>
+  <div class="container-page">
+    <div class="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+      <div class="max-w-[560px]">
+        <p class="font-mono text-[10.5px] uppercase tracking-[0.16em] text-cyan/80">Descargas</p>
+        <h2 class="mt-2 font-display text-[26px] font-semibold tracking-[-0.02em] text-ink md:text-[34px]">
+          {heading}
+        </h2>
+        <p class="mt-2 text-[13.5px] leading-6 text-ink-3">{intro}</p>
+      </div>
+
+      <div class="flex flex-wrap items-center gap-x-4 gap-y-1 font-mono text-[10.5px] text-ink-3">
+        <span class="text-ink-2">{release.tag}</span>
+        <span class="text-ink-3/50">·</span>
+        <span>{releaseDate()}</span>
+        <span class="text-ink-3/50">·</span>
+        <a href={site.releases} class="transition-colors hover:text-cyan" target="_blank" rel="noreferrer noopener">
+          Todas las versiones
+        </a>
+      </div>
+    </div>
+
+    <div
+      data-mobile-note
+      class="mt-5 items-start gap-2 rounded-lg border border-amber/25 bg-amber/[0.06] px-3.5 py-3 text-[11.5px] leading-5 text-amber/90"
+    >
+      <span class="mt-0.5">●</span>
+      <span>
+        Estás en un dispositivo móvil. Abrí esta página en tu computadora para descargar el instalador.
+      </span>
+    </div>
+
+    <div class="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+      {downloads.map((item) => <DownloadCard item={item} />)}
+    </div>
+
+    <div class="mt-5 flex flex-col gap-3 rounded-lg border border-line bg-bg/40 px-4 py-3.5 sm:flex-row sm:items-center sm:justify-between">
+      <p class="flex items-start gap-2 text-[11px] leading-5 text-ink-3">
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8"
+          stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="mt-0.5 shrink-0 text-green/80">
+          <path d="M12 22s8-3.5 8-10V5l-8-3-8 3v7c0 6.5 8 10 8 10Z" />
+          <path d="m9 12 2 2 4-4" />
+        </svg>
+        <span>
+          Verificá lo que descargás: cada release publica <span class="font-mono text-ink-2">SHA256SUMS.txt</span> y
+          una atestación de procedencia.
+        </span>
+      </p>
+      <div class="flex flex-wrap gap-x-4 gap-y-1 font-mono text-[10.5px]">
+        {release.checksums && (
+          <a href={release.checksums} class="text-ink-2 transition-colors hover:text-cyan">
+            SHA256SUMS.txt
+          </a>
+        )}
+        <a href={site.installDocs} class="text-ink-2 transition-colors hover:text-cyan" target="_blank" rel="noreferrer noopener">
+          Guía de instalación
+        </a>
+      </div>
+    </div>
+  </div>
+</section>

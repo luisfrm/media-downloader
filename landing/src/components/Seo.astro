@@ -1,0 +1,68 @@
+---
+interface Props {
+  title: string
+  description: string
+  image?: string
+  imageAlt?: string
+  canonical?: string
+  type?: 'website' | 'article'
+  noindex?: boolean
+  jsonLd?: Record<string, unknown> | Array<Record<string, unknown>>
+}
+
+const {
+  title,
+  description,
+  image = '/shared-image.png',
+  imageAlt = 'Media Downloader: bajá videos y audio de tus redes.',
+  canonical,
+  type = 'website',
+  noindex = false,
+  jsonLd,
+} = Astro.props
+
+const siteUrl = Astro.site ?? new URL('https://media-downloader-landing.luisfrm.workers.dev')
+const pathname = Astro.url.pathname.replace(/\/index\.html$/, '/').replace(/\.html$/, '')
+const canonicalUrl = new URL(canonical ?? pathname, siteUrl)
+const imageUrl = new URL(image, siteUrl)
+const blocks = jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : []
+---
+
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>{title}</title>
+<meta name="description" content={description} />
+<link rel="canonical" href={canonicalUrl} />
+<meta name="robots" content={noindex ? 'noindex, nofollow' : 'index, follow, max-image-preview:large'} />
+<meta name="theme-color" content="#0b111e" />
+<meta name="color-scheme" content="dark" />
+
+<meta property="og:type" content={type} />
+<meta property="og:site_name" content="Media Downloader" />
+<meta property="og:title" content={title} />
+<meta property="og:description" content={description} />
+<meta property="og:url" content={canonicalUrl} />
+<meta property="og:image" content={imageUrl} />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:image:alt" content={imageAlt} />
+<meta property="og:locale" content="es_ES" />
+
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content={title} />
+<meta name="twitter:description" content={description} />
+<meta name="twitter:image" content={imageUrl} />
+<meta name="twitter:image:alt" content={imageAlt} />
+
+<link rel="icon" href="/icon-192.png" type="image/png" sizes="192x192" />
+<link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+<link rel="manifest" href="/site.webmanifest" />
+<link rel="alternate" hreflang="es" href={canonicalUrl} />
+
+{
+  blocks.map((block) => (
+    <script type="application/ld+json" set:html={JSON.stringify(block)}></script>
+  ))
+}
+
+<slot />

@@ -1,0 +1,62 @@
+---
+import '../styles/global.css'
+import Seo from '../components/Seo.astro'
+import Header from '../components/Header.astro'
+import Footer from '../components/Footer.astro'
+
+interface Props {
+  title: string
+  description: string
+  image?: string
+  imageAlt?: string
+  canonical?: string
+  noindex?: boolean
+  jsonLd?: Record<string, unknown> | Array<Record<string, unknown>>
+}
+
+const { title, description, image, imageAlt, canonical, noindex, jsonLd } = Astro.props
+---
+
+<!doctype html>
+<html lang="es">
+  <head>
+    <Seo
+      title={title}
+      description={description}
+      image={image}
+      imageAlt={imageAlt}
+      canonical={canonical}
+      noindex={noindex}
+      jsonLd={jsonLd}
+    />
+    <slot name="head" />
+  </head>
+  <body class="min-h-dvh bg-bg text-ink">
+    <a
+      href="#contenido"
+      class="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-md focus:bg-cyan focus:px-4 focus:py-2 focus:text-[13px] focus:font-semibold focus:text-[#06212a]"
+    >
+      Saltar al contenido
+    </a>
+
+    <Header />
+
+    <main id="contenido">
+      <slot />
+    </main>
+
+    <Footer />
+
+    <script>
+      const ua = navigator.userAgent
+
+      let os = 'otro'
+      if (/android|iphone|ipad|ipod/i.test(ua) || (/macintosh/i.test(ua) && navigator.maxTouchPoints > 1)) os = 'movil'
+      else if (/windows/i.test(ua)) os = 'windows'
+      else if (/macintosh|mac os x/i.test(ua)) os = 'macos'
+      else if (/linux|x11/i.test(ua)) os = 'linux'
+
+      document.documentElement.dataset.os = os
+    </script>
+  </body>
+</html>
