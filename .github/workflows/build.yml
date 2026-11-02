@@ -18,12 +18,47 @@ concurrency:
 
 permissions:
   contents: read
+  pull-requests: read
 
 env:
   CARGO_TERM_COLOR: always
   RUST_BACKTRACE: '1'
 
 jobs:
+  changes:
+    name: Detect changes
+    runs-on: ubuntu-latest
+    outputs:
+      app: ${{ steps.filter.outputs.app }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+
+      - name: Detect app changes
+        id: filter
+        if: github.event_name != 'workflow_dispatch'
+        uses: dorny/paths-filter@ceb8a2b8f2d89434be7ff52d3de7ec3738c5cc9d # v4.0.3
+        with:
+          filters: |
+            app:
+              - 'src/**'
+              - 'src-tauri/**'
+              - 'scripts/**'
+              - 'e2e/**'
+              - 'mocks/**'
+              - 'index.html'
+              - 'package.json'
+              - 'pnpm-lock.yaml'
+              - 'pnpm-workspace.yaml'
+              - 'vite.config.ts'
+              - 'tsconfig.json'
+              - 'playwright.config.ts'
+              - 'rust-toolchain.toml'
+              - '.node-version'
+              - '.github/workflows/build.yml'
+
   version:
     name: Resolve version
     runs-on: ubuntu-latest
@@ -117,7 +152,8 @@ jobs:
 
   build:
     name: ${{ matrix.name }}
-    needs: version
+    needs: [version, changes]
+    if: needs.changes.outputs.app == 'true' || github.event_name == 'workflow_dispatch'
     strategy:
       fail-fast: false
       matrix:
@@ -214,9 +250,20 @@ jobs:
         run: pnpm test:rust
 
       - name: Build bundles
+        shell: bash
         env:
           APPIMAGE_EXTRACT_AND_RUN: '1'
-        run: pnpm tauri build --bundles ${{ matrix.bundles }}
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+        run: |
+          extra=""
+          if [ -n "$TAURI_SIGNING_PRIVATE_KEY" ]; then
+            extra="--config src-tauri/tauri.signing.conf.json"
+            echo "Build firmado: se generan artefactos de actualización."
+          else
+            echo "::warning::Sin TAURI_SIGNING_PRIVATE_KEY: build sin artefactos de actualización."
+          fi
+          pnpm tauri build --bundles ${{ matrix.bundles }} $extra
 
       - name: Normalize artifacts
         run: >-
@@ -236,7 +283,7 @@ jobs:
   publish:
     name: Publish release
     needs: [version, build]
-    if: needs.version.outputs.publish == 'true'
+    if: needs.version.outputs.publish == 'true' && github.ref == 'refs/heads/master'
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -256,6 +303,40 @@ jobs:
       - name: Add install guide
         run: cp docs/INSTALL.md release/INSTALL.md
 
+      - name: Create or resume the draft release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERSION: ${{ needs.version.outputs.version }}
+        run: |
+          TAG="v$VERSION"
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            DRAFT=$(gh release view "$TAG" --json isDraft --jq .isDraft)
+            if [ "$DRAFT" != "true" ]; then
+              echo "::error::$TAG ya está publicado. Los releases son inmutables: subí la versión."
+              exit 1
+            fi
+            echo "Retomando el draft $TAG"
+          else
+            echo "Creando el draft $TAG"
+            gh release create "$TAG" \
+              --target "$GITHUB_SHA" \
+              --title "Media Downloader $TAG" \
+              --generate-notes \
+              --draft
+          fi
+
+      - name: Build updater manifest
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERSION: ${{ needs.version.outputs.version }}
+        run: |
+          TAG="v$VERSION"
+          NOTES=$(gh release view "$TAG" --json body --jq .body)
+          RELEASE_NOTES="$NOTES" node scripts/latest-json.mjs \
+            --dir release \
+            --version "$VERSION" \
+            --repo "$GITHUB_REPOSITORY"
+
       - name: Generate checksums
         run: node scripts/collect-artifacts.mjs --checksums release
 
@@ -264,20 +345,34 @@ jobs:
         with:
           subject-path: release/*
 
-      - name: Create or update the GitHub release
+      - name: Upload assets and publish
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           VERSION: ${{ needs.version.outputs.version }}
         run: |
           TAG="v$VERSION"
-          if gh release view "$TAG" >/dev/null 2>&1; then
-            echo "Actualizando $TAG"
-            gh release upload "$TAG" release/* --clobber
-          else
-            echo "Creando $TAG"
-            gh release create "$TAG" \
-              --target "$GITHUB_SHA" \
-              --title "Media Downloader $TAG" \
-              --generate-notes
-            gh release upload "$TAG" release/* --clobber
-          fi
+          gh release upload "$TAG" release/* --clobber
+          gh release edit "$TAG" --draft=false --latest
+
+  ci:
+    name: CI
+    needs: [changes, version, checks, build]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Verify required jobs
+        env:
+          CHANGES: ${{ needs.changes.result }}
+          VERSION: ${{ needs.version.result }}
+          CHECKS: ${{ needs.checks.result }}
+          BUILD: ${{ needs.build.result }}
+        run: |
+          set -e
+          test "$CHANGES" = "success" || { echo "Detect changes: $CHANGES"; exit 1; }
+          test "$VERSION" = "success" || { echo "Resolve version: $VERSION"; exit 1; }
+          test "$CHECKS" = "success" || { echo "Repo checks: $CHECKS"; exit 1; }
+          case "$BUILD" in
+            success|skipped) echo "Build: $BUILD" ;;
+            *) echo "Build: $BUILD"; exit 1 ;;
+          esac
+          echo "CI OK (build=$BUILD)"

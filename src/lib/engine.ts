@@ -3,7 +3,7 @@ import { listen } from '@tauri-apps/api/event'
 import { open as openDialog } from '@tauri-apps/plugin-dialog'
 import { openPath as openerOpenPath, openUrl as openerOpenUrl, revealItemInDir } from '@tauri-apps/plugin-opener'
 import { readText as clipboardReadText, writeText as clipboardWriteText } from '@tauri-apps/plugin-clipboard-manager'
-import type { EngineCapabilities, EngineEvent } from './types'
+import type { EngineCapabilities, EngineEvent, RuntimeInfo } from './types'
 
 export const isTauri =
   typeof window !== 'undefined' && Object.prototype.hasOwnProperty.call(window, '__TAURI_INTERNALS__')
@@ -232,4 +232,14 @@ export function platformName(): 'macos' | 'windows' | 'linux' {
   if (/Mac/i.test(ua)) return 'macos'
   if (/Win/i.test(ua)) return 'windows'
   return 'linux'
+}
+
+export async function runtimeInfo(): Promise<RuntimeInfo> {
+  if (isTauri) return invoke<RuntimeInfo>('runtime_info')
+  return {
+    version: __APP_VERSION__,
+    os: platformName(),
+    installKind: 'dev',
+    canSelfUpdate: false,
+  }
 }

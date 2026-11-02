@@ -2,6 +2,7 @@ import { useEffect } from 'react'
 import { CircleAlert, Check, Info, X } from 'lucide-react'
 import { Titlebar } from './components/Titlebar'
 import { Sidebar } from './components/Sidebar'
+import { UpdateBanner } from './components/UpdateBanner'
 import { HomePage } from './features/home/HomePage'
 import { QueuePage } from './features/queue/QueuePage'
 import { LibraryPage } from './features/library/LibraryPage'
@@ -9,6 +10,7 @@ import { ConverterPage } from './features/converter/ConverterPage'
 import { SettingsPage } from './features/settings/SettingsPage'
 import { useAppStore, type Route } from './store/useAppStore'
 import { useDownloadsStore } from './store/useDownloadsStore'
+import { useUpdaterStore } from './store/useUpdaterStore'
 import * as engine from './lib/engine'
 import { cn } from './lib/cn'
 
@@ -105,6 +107,19 @@ export default function App() {
   }, [hydrateSettings, refreshCapabilities])
 
   useEffect(() => {
+    let timer: number | undefined
+    void useUpdaterStore
+      .getState()
+      .init()
+      .then(() => {
+        timer = window.setTimeout(() => void useUpdaterStore.getState().maybeCheck(), 10_000)
+      })
+    return () => {
+      if (timer) window.clearTimeout(timer)
+    }
+  }, [])
+
+  useEffect(() => {
     let unsubscribe: (() => void) | null = null
     void engine.subscribe((event) => useDownloadsStore.getState().applyEvent(event)).then((fn) => {
       unsubscribe = fn
@@ -159,6 +174,7 @@ export default function App() {
       style={{ '--rail-w': railCollapsed ? '64px' : '240px' } as React.CSSProperties}
     >
       <Titlebar />
+      <UpdateBanner />
       <div className="flex min-h-0 flex-1">
         <Sidebar />
         <main className="canvas-glow min-w-0 flex-1 overflow-y-auto overflow-x-hidden">

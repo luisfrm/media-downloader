@@ -13,6 +13,9 @@ import { execFileSync } from 'node:child_process'
 import { readFileSync, writeFileSync } from 'node:fs'
 
 const KINDS = new Set(['patch', 'minor', 'major'])
+const args = process.argv.slice(2)
+const noPush = args.includes('--no-push')
+const input = args.find((arg) => !arg.startsWith('--')) ?? 'patch'
 
 function run(command, args) {
   execFileSync(command, args, { stdio: 'inherit' })
@@ -21,8 +24,6 @@ function run(command, args) {
 function capture(command, args) {
   return execFileSync(command, args, { encoding: 'utf8' }).trim()
 }
-
-const input = process.argv[2] ?? 'patch'
 
 const dirty = capture('git', ['status', '--porcelain'])
 if (dirty) {
@@ -84,6 +85,16 @@ run('git', [
   'src-tauri/tauri.conf.json',
 ])
 run('git', ['commit', '-m', `chore(release): v${next}`])
+
+if (noPush) {
+  console.log(`\n✓ v${next} commiteado en ${branch}. Push omitido (--no-push).`)
+  process.exit(0)
+}
+
 run('git', ['push', 'origin', `HEAD:${branch}`])
 
-console.log(`\n✓ v${next} pusheado a ${branch}. CI crea el tag y publica el release.`)
+if (branch === 'master') {
+  console.log(`\n✓ v${next} pusheado a master. CI crea el tag y publica el release.`)
+} else {
+  console.log(`\n✓ v${next} pusheado a ${branch}. Abrí un PR; CI publica cuando el merge llegue a master.`)
+}

@@ -13,6 +13,17 @@ updates:
       development-dependencies:
         dependency-type: development
 
+  - package-ecosystem: npm
+    directory: /landing
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 10
+    groups:
+      landing:
+        patterns:
+          - '*'
+
   - package-ecosystem: cargo
     directory: /src-tauri
     schedule:

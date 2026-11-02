@@ -1,157 +1,186 @@
-# Releasing
+# Release
 
-## The rule
+Un release es un comando. Este documento explica qué hace ese comando, qué hace CI
+después y qué hacer cuando algo sale mal.
 
-There is a single source of truth: **`version` in `package.json`**.
+## La regla
 
-- **Push to `master` with a new version** → CI builds Windows, Linux and macOS, then publishes a GitHub release.
-- **Push without bumping the version** → CI builds and tests the same three platforms, but publishes nothing.
-- **Pull request** → CI builds and tests, never publishes.
+La versión vive en `package.json`. Nada más.
 
-The tag is created by CI, not by your machine. If a build fails, no tag is left behind.
+`scripts/sync-version.mjs` la copia a `src-tauri/Cargo.toml`, `Cargo.lock` y
+`tauri.conf.json`, así el binario, el MSI y el DMG llevan el mismo número.
 
-## Day-to-day
+Cuando la versión cambia y el push llega a `master`, CI publica. Cuando no cambia,
+CI compila y testea pero no publica.
 
-```bash
-pnpm tauri dev   # desktop app with hot reload
-pnpm dev         # UI only, in the browser
-pnpm check       # frontend build + typecheck + TS tests + YAML lint + Rust tests
-pnpm test:e2e    # Playwright (web, no network)
-```
-
-## Publish a version
+## Publicar
 
 ```bash
-pnpm release patch     # 0.1.0 -> 0.1.1
-# or: pnpm release minor | major | 1.2.3
+pnpm release:patch      # 0.1.0 → 0.1.1
+pnpm release:minor      # 0.1.0 → 0.2.0
+pnpm release:major      # 0.1.0 → 1.0.0
+pnpm release:set 2.0.0  # versión exacta
 ```
 
-`scripts/release.mjs`:
+Cada uno:
 
-1. Verifies the working tree is clean.
-2. Bumps `package.json`.
-3. Runs `scripts/sync-version.mjs` → `Cargo.toml`, `Cargo.lock`, `tauri.conf.json`.
-4. Commits `chore(release): vX.Y.Z`.
-5. Pushes to the current branch.
+1. Verifica que el árbol esté limpio y que la versión no baje.
+2. Bumpea `package.json`.
+3. Sincroniza `Cargo.toml`, `Cargo.lock` y `tauri.conf.json`.
+4. Commitea `chore(release): vX.Y.Z`.
+5. Pushea la rama actual.
 
-It does **not** create a tag or a release.
+El tag **no** lo crea el script: lo crea CI cuando publica.
 
-## What CI does
-
-Workflow: `.github/workflows/build.yml`
-
-| Job | Runner | Purpose |
-| --- | --- | --- |
-| `version` | Ubuntu | Reads `package.json`, checks whether `vX.Y.Z` already exists, decides `publish` |
-| `audit` | Ubuntu | `pnpm audit --prod` (informative, does not block) |
-| `checks` | Ubuntu | `pnpm lint:yaml` |
-| `build` | matrix: Windows, Linux, macOS | Install, provision engine, build, test, bundle, normalize names, upload artifacts |
-| `publish` | Ubuntu, only if `publish=true` | Download the three artifacts, add `INSTALL.md` + `SHA256SUMS.txt`, attest provenance, create/update the release |
-
-Build matrix:
-
-| Runner | Bundles | Artifact prefix |
-| --- | --- | --- |
-| `windows-latest` | `msi,nsis` | `Media-Downloader_<version>_windows-x64` |
-| `ubuntu-22.04` | `deb,appimage` | `Media-Downloader_<version>_linux-x64` |
-| `macos-latest` | `dmg` | `Media-Downloader_<version>_macos-arm64` |
-
-Every build runs:
+### Flujo con rama
 
 ```bash
-pnpm install --frozen-lockfile
-pnpm setup:binaries        # yt-dlp + ffmpeg for that OS
-pnpm build                 # dist/ is required by tauri::generate_context!
-pnpm test                  # Vitest
-pnpm test:rust             # cargo test
-pnpm tauri build --bundles <...>
-node scripts/collect-artifacts.mjs --prefix ...
+git checkout -b release/0.1.1
+pnpm release:patch
+# se pushea la rama; abrí un PR
 ```
 
-## Republish the same version
+El PR corre la matriz completa y los checks. Cuando se mergea a `master`, el push
+lleva la versión nueva y CI publica. Dos reglas hacen esto seguro:
 
-Actions → **Release** → **Run workflow** → enable **force**.
+- Un PR nunca publica, aunque tenga una versión nueva.
+- El workflow se niega a publicar desde cualquier rama que no sea `master`.
 
-The `version` job sets `publish=true` even if the release exists. The publish job
-uploads the new files with `--clobber`.
-
-## Local installers
+`--no-push` deja el commit local:
 
 ```bash
-pnpm setup:binaries
-pnpm build:installer
+pnpm release:patch --no-push
 ```
 
-Outputs:
+El script no corre en detached HEAD.
 
-- `src-tauri/target/release/bundle/msi/`
-- `src-tauri/target/release/bundle/nsis/`
-- `src-tauri/target/release/bundle/deb/`, `appimage/`, `dmg/` on those systems
+## Qué hace CI
 
-## Repository settings (configure once)
-
-**Settings → Branches → `master` protection**
-
-- Require a pull request before merging (1 approval).
-- Require review from Code Owners.
-- Dismiss stale approvals.
-- Require status checks: `Resolve version`, `Repo checks`, `Windows x64`, `Linux x64`, `macOS arm64`.
-- Require conversation resolution.
-- Do **not** allow force pushes or deletions.
-- Do not enforce on admins (maintainers keep the bypass).
-
-**Settings → General**
-
-- Squash merge only.
-- Delete branches on merge.
-
-**Settings → Security**
-
-- Dependabot alerts.
-- Dependabot security updates.
-
-## How the pieces fit
+Workflow: [`.github/workflows/build.yml`](../.github/workflows/build.yml)
 
 ```
-package.json version
-        │
-        ▼
-scripts/sync-version.mjs ──► Cargo.toml + Cargo.lock + tauri.conf.json
-        │
-        ▼
-scripts/release.mjs ──► commit + push
-        │
-        ▼
-CI: version ─► build ×3 ─► publish
+changes ──┬─ version ── build ×3 (Windows · Linux · macOS) ── publish
+          │
+          └─ checks
+                    └──────────── CI (agregado, siempre reporta)
 ```
 
-- `scripts/collect-artifacts.mjs` normalizes installer names and generates `SHA256SUMS.txt`.
-- `scripts/lint-yaml.mjs` validates jobs, `needs` and SHA pinning before a push.
-- `.github/dependabot.yml` groups npm, cargo and Actions updates weekly.
+| Job | Qué hace |
+| --- | --- |
+| `changes` | `dorny/paths-filter` decide si hay cambios de app (`src/**`, `src-tauri/**`, scripts, configs). Un push que solo toca `landing/**` o docs no compila la app. |
+| `version` | Lee `package.json`, calcula `vX.Y.Z` y decide `publish`. En PRs siempre `false`. Si el tag/release ya existe, `false`. Con `force=true`, `true`. |
+| `audit` | `pnpm audit --prod` (informativo). |
+| `checks` | `pnpm lint:yaml`. |
+| `build` ×3 | Windows, Linux y macOS en paralelo. Instala, baja yt-dlp/ffmpeg, compila, testea TS + Rust + E2E (Linux), firma si hay clave, empaqueta, normaliza y sube artifacts. |
+| `publish` | Solo en `master` con `publish=true`: crea/retoma el **draft**, genera `latest.json` y `SHA256SUMS.txt`, firma la procedencia, sube todo y publica. |
+| `CI` | Agregado: exige `changes`, `version` y `checks` en verde; acepta `build` `success` o `skipped`. Es el check requerido. |
 
-## Security decisions
+Cada build corre `pnpm check` (bundle + typecheck + Vitest + lint YAML + Rust) y en
+Linux además Playwright. `fail-fast: false`: si una plataforma falla, las otras
+terminan y ves los tres resultados.
 
-- Global `permissions: contents: read`; only `publish` gets `contents: write`.
-- `pull_request`, never `pull_request_target`.
-- Third-party actions pinned to a 40-character commit SHA.
-- No binaries in git: `src-tauri/binaries/` is ignored and provisioned per build.
-- Release artifacts are attested with `actions/attest-build-provenance`.
-- `concurrency` prevents two pushes from publishing the same version twice.
+## Firma y actualizaciones
 
-## Things that already bit us
+Si `TAURI_SIGNING_PRIVATE_KEY` está configurada, el build pasa
+`--config src-tauri/tauri.signing.conf.json` y Tauri genera:
 
-| Trap | Symptom | Fix |
-| --- | --- | --- |
-| `cargo test` without `dist/` | `generate_context!` fails | run `pnpm build` before `pnpm test:rust` |
-| Missing engine binaries | `tauri build` cannot resolve `bundle.resources` | run `pnpm setup:binaries` first |
-| `paths-ignore` on `pull_request` | required checks never report, PR blocked forever | only use `paths-ignore` on `push` |
-| Unpinned action tag | a moved tag can inject code into a release | pin to a commit SHA |
-| Cross-compiling installers | no `.dmg`/`.deb` from Windows | build on each OS (the matrix does it) |
-| Manual tag before CI | tag points to a failed build | let CI create the tag |
+- `*.exe.sig` / `*.AppImage.sig` / `*.app.tar.gz.sig`;
+- el `.app.tar.gz` de macOS (el updater no usa el `.dmg`).
 
-## Not implemented yet
+Sin clave (por ejemplo un PR desde un fork) el build sigue, pero sin artefactos de
+actualización. El job `publish` exige las firmas y falla si faltan.
 
-- **Windows code signing** (OV/EV certificate or Azure Trusted Signing). Without it, SmartScreen warns.
-- **macOS notarization** (Apple Developer + `notarytool`). Without it, Gatekeeper blocks.
-- **Auto-update** (`tauri-plugin-updater` + `latest.json` + signing key).
-- **Intel macOS** builds (add `macos-13` to the matrix if needed).
+`latest.json` se genera después de crear el draft para incluir las notas del
+release. Formato y claves: [auto-updates.md](./AUTO_UPDATES.md).
+
+## Drafts y releases inmutables
+
+El pipeline **no** publica directo:
+
+```
+crear draft → subir assets → gh release edit --draft=false --latest
+```
+
+Un release publicado no se puede modificar. La consecuencia práctica: **no se
+parchea un release**. Si el build salió mal, se publica una versión nueva.
+
+Si el upload falla a mitad de camino, el draft queda. Se completa con:
+
+Actions → **Release** → *Run workflow* → `force = true`.
+
+Si el release ya está publicado, `force` falla con un mensaje que pide bumpear la
+versión. No se sobreescribe.
+
+## Artefactos
+
+`scripts/collect-artifacts.mjs` normaliza los nombres:
+
+```
+Media-Downloader_0.1.1_windows-x64-setup.exe
+Media-Downloader_0.1.1_windows-x64.msi
+Media-Downloader_0.1.1_macos-arm64.dmg
+Media-Downloader_0.1.1_macos-arm64.app.tar.gz
+Media-Downloader_0.1.1_linux-x64.AppImage
+Media-Downloader_0.1.1_linux-x64.deb
+INSTALL.md
+SHA256SUMS.txt
+latest.json
+```
+
+Los `.sig` acompañan a los paquetes que pueden autoactualizarse.
+
+## Reintentar a mano
+
+Actions → **Release** → *Run workflow*.
+
+- `force = false`: igual que un push normal.
+- `force = true`: retoma un draft o republica si el release aún no existe.
+
+No sobreescribe releases publicados.
+
+## Aislamiento de la landing
+
+La landing tiene su propio workflow (`landing.yml`). Un cambio en `landing/**` no
+ejecuta la matriz de la app; un cambio en `src/**` no despliega la landing. El job
+`Landing` siempre reporta (no-op si no hay cambios) y el job `CI` siempre reporta
+(no-op si no hay cambios de app). Por eso la protección exige **`CI` + `Landing`**.
+
+Cuando `Release` termina en `master`, `Landing` se dispara con `workflow_run` y
+reconstruye la tabla de descargas con el release nuevo.
+
+## Protección de `master`
+
+| Control | Valor |
+| --- | --- |
+| PR obligatorio | Sí |
+| Aprobaciones | 1, del code owner |
+| Aprobaciones stale | Se descartan con commits nuevos |
+| Checks requeridos | `CI`, `Landing` |
+| Conversación resuelta | Sí |
+| Force push / borrado | Bloqueado |
+| Bypass de admin | Permitido (`pnpm release` puede pushear a `master`) |
+
+Si activás “enforce admins”, `pnpm release` deja de funcionar en `master`; usá el
+flujo con rama + PR.
+
+## Cuando algo sale mal
+
+| Problema | Qué hacer |
+| --- | --- |
+| Falla una plataforma | Corregí y pusheá otra vez. La versión no cambió, no se publica. |
+| Falla `publish` después del draft | Reintentá con `force = true`. |
+| Un build malo llegó a usuarios | Publicá un patch. No hay rollback. |
+| Necesitás rehacer la misma versión | No se puede: bumpeá el patch. |
+| Faltan las firmas | Configurá `TAURI_SIGNING_PRIVATE_KEY` y `_PASSWORD`. |
+| El deploy de la landing se omite | Faltan los secretos de Cloudflare (ver [LANDING.md](./LANDING.md)). |
+| Windows: `EXDEV` al mover artefactos | El temp está en `C:` y el workspace en `D:`. `collect-artifacts.mjs` usa `copyFileSync`, no `renameSync`. |
+
+## Checklist antes de publicar
+
+- [ ] `pnpm check` pasa localmente (incluye Rust)
+- [ ] `cd landing && pnpm check && pnpm build` si tocaste la landing
+- [ ] La rama está actualizada con `master`
+- [ ] El bump es el que querés (`patch`, `minor`, `major` o `set`)
+- [ ] El PR se mergeó y el run de `master` está verde
+- [ ] No hay secretos en el stage (`git status`)
+- [ ] `.secrets/` sigue fuera de git

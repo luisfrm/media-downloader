@@ -186,6 +186,13 @@ export interface EngineCapabilities {
   defaultDir: string
 }
 
+export interface RuntimeInfo {
+  version: string
+  os: string
+  installKind: 'nsis' | 'msi' | 'appimage' | 'package' | 'dmg' | 'dev' | 'unknown'
+  canSelfUpdate: boolean
+}
+
 export interface EngineEvent {
   type: 'progress' | 'phase' | 'log'
   id: string

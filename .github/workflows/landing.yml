@@ -1,0 +1,104 @@
+name: Landing
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+  workflow_dispatch:
+    inputs:
+      deploy:
+        description: Publicar en Cloudflare Workers
+        type: boolean
+        default: true
+  workflow_run:
+    workflows: [Release]
+    types: [completed]
+
+concurrency:
+  group: landing-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  pull-requests: read
+
+env:
+  SITE_URL: ${{ vars.LANDING_URL || 'https://media-downloader.luisfrm.workers.dev' }}
+
+jobs:
+  landing:
+    name: Landing
+    # workflow_run also fires for pull_request runs; only react to master.
+    if: >-
+      github.event_name != 'workflow_run' ||
+      (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'master')
+    runs-on: ubuntu-latest
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+
+      - name: Detect landing changes
+        id: filter
+        if: github.event_name != 'workflow_run' && github.event_name != 'workflow_dispatch'
+        uses: dorny/paths-filter@ceb8a2b8f2d89434be7ff52d3de7ec3738c5cc9d # v4.0.3
+        with:
+          filters: |
+            landing:
+              - 'landing/**'
+              - 'docs/LANDING.md'
+              - '.github/workflows/landing.yml'
+
+      - name: Setup pnpm
+        if: steps.filter.outputs.landing == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'workflow_run'
+        uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+        with:
+          run_install: false
+
+      - name: Setup Node
+        if: steps.filter.outputs.landing == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'workflow_run'
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: landing/.node-version
+          cache: pnpm
+          cache-dependency-path: landing/pnpm-lock.yaml
+
+      - name: Install dependencies
+        if: steps.filter.outputs.landing == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'workflow_run'
+        working-directory: landing
+        run: pnpm install --frozen-lockfile
+
+      - name: Check
+        if: steps.filter.outputs.landing == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'workflow_run'
+        working-directory: landing
+        run: pnpm check
+
+      - name: Build
+        if: steps.filter.outputs.landing == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'workflow_run'
+        working-directory: landing
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: pnpm build
+
+      - name: Deploy
+        if: >-
+          github.event_name != 'pull_request' &&
+          github.ref == 'refs/heads/master' &&
+          env.CLOUDFLARE_API_TOKEN != '' &&
+          (github.event_name != 'workflow_dispatch' || inputs.deploy)
+        working-directory: landing
+        run: pnpm deploy
+
+      - name: Explain skipped deploy
+        if: >-
+          steps.filter.outputs.landing == 'true' &&
+          github.event_name != 'pull_request' &&
+          env.CLOUDFLARE_API_TOKEN == ''
+        run: |
+          echo "### Deploy omitido" >> "$GITHUB_STEP_SUMMARY"
+          echo "Falta el secret \`CLOUDFLARE_API_TOKEN\`. El build pasó y el sitio quedó en \`landing/dist\`." >> "$GITHUB_STEP_SUMMARY"

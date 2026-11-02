@@ -13,6 +13,21 @@ The installers bundle `yt-dlp` and `ffmpeg`: you do not need to install anything
 Downloads are saved to `~/Downloads/Media Downloader` by default and can be changed
 from the app (command bar or Settings).
 
+## Updates
+
+| Install | Auto-update | How |
+| --- | --- | --- |
+| Windows `.exe` (NSIS) | Yes | The app downloads the signed installer and replaces the per-user install. |
+| Linux AppImage | Yes | The app replaces the AppImage file and restarts. |
+| Windows `.msi` | No | Machine-wide install in Program Files; reinstall manually. |
+| Linux `.deb` | No | The package manager owns the files; reinstall manually. |
+| macOS `.dmg` | No | Signed/notarized builds are still pending; reinstall manually. |
+
+The app checks once a day (10 s after launch), shows a banner when a new version
+exists, and blocks updates while downloads are running. Every update is verified
+against the minisign public key compiled into the app. Details:
+[docs/AUTO_UPDATES.md](AUTO_UPDATES.md).
+
 ## Windows
 
 1. Run `..._windows-x64-setup.exe` (NSIS) or the `.msi`.

@@ -5,6 +5,7 @@ import { Button } from '../../components/ui/Button'
 import { Progress } from '../../components/ui/Progress'
 import { Segmented } from '../../components/ui/Segmented'
 import { useAppStore } from '../../store/useAppStore'
+import { useActivityStore } from '../../store/useActivityStore'
 import { convert, isTauri, openPath, pickFile, subscribe } from '../../lib/engine'
 import { buildConvertArgs, type ConvertSpec } from '../../lib/ytdlp'
 import { cn } from '../../lib/cn'
@@ -31,6 +32,8 @@ export function ConverterPage() {
   const [done, setDone] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const jobId = useRef<string | null>(null)
+  const beginConversion = useActivityStore((state) => state.beginConversion)
+  const endConversion = useActivityStore((state) => state.endConversion)
 
   useEffect(() => {
     let unsubscribe: (() => void) | null = null
@@ -41,17 +44,19 @@ export function ConverterPage() {
         setDone(event.filePath ?? 'Conversión terminada')
         toast({ tone: 'success', title: 'Conversión completa' })
         jobId.current = null
+        endConversion()
       }
       if (event.phase === 'error') {
         setRunning(false)
         setError(event.message ?? 'La conversión falló')
         jobId.current = null
+        endConversion()
       }
     }).then((fn) => {
       unsubscribe = fn
     })
     return () => unsubscribe?.()
-  }, [toast])
+  }, [toast, endConversion])
 
   const outputPreview = input
     ? `${input.replace(/\.[^./\\]+$/, '')}.converted.${format}`
@@ -65,6 +70,7 @@ export function ConverterPage() {
     setError(null)
     setDone(null)
     setRunning(true)
+    beginConversion()
     const id = crypto.randomUUID()
     jobId.current = id
     try {
@@ -74,6 +80,7 @@ export function ConverterPage() {
       setRunning(false)
       setError(reason instanceof Error ? reason.message : 'No se pudo iniciar la conversión')
       jobId.current = null
+      endConversion()
     }
   }
 

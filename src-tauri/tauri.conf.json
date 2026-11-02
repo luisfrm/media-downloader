@@ -44,5 +44,13 @@
     "category": "Utility",
     "shortDescription": "Descargá videos y audio de tus redes",
     "longDescription": "Media Downloader descarga videos, audio, miniaturas y subtítulos de YouTube, X, TikTok, Instagram y Facebook, con selección de resolución y formato."
+  },
+  "plugins": {
+    "updater": {
+      "endpoints": [
+        "https://github.com/luisfrm/media-downloader/releases/latest/download/latest.json"
+      ],
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IEYzMDQzQzU1RjA5RTUxODIKUldTQ1VaN3dWVHdFODBTSE95dmFjSGFTelBPVS9Ca29yZVYwM3lwbklqSUZVOU5BT1VEanRCVjIK"
+    }
   }
 }

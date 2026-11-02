@@ -6,8 +6,10 @@ import { IconButton } from '../../components/ui/IconButton'
 import { Select } from '../../components/ui/Select'
 import { Toggle } from '../../components/ui/Toggle'
 import { useAppStore } from '../../store/useAppStore'
+import { useUpdaterStore } from '../../store/useUpdaterStore'
 import { openPath, pickFolder } from '../../lib/engine'
 import { clamp, truncateMiddle } from '../../lib/format'
+import { describeInstallKind, formatLastCheck } from '../../lib/updater'
 import { cn } from '../../lib/cn'
 import { DEFAULT_FILENAME_TEMPLATE } from '../../lib/ytdlp'
 import type { Settings } from '../../lib/types'
@@ -59,6 +61,30 @@ export function SettingsPage() {
   const refresh = useAppStore((state) => state.refreshCapabilities)
   const toast = useAppStore((state) => state.toast)
   const folderInput = useRef<HTMLInputElement>(null)
+
+  const updateStatus = useUpdaterStore((state) => state.status)
+  const updateInfo = useUpdaterStore((state) => state.info)
+  const updateRuntime = useUpdaterStore((state) => state.runtime)
+  const updateProgress = useUpdaterStore((state) => state.progress)
+  const updateError = useUpdaterStore((state) => state.error)
+  const lastCheck = useUpdaterStore((state) => state.lastCheck)
+  const skippedVersion = useUpdaterStore((state) => state.skippedVersion)
+  const checkNow = useUpdaterStore((state) => state.check)
+  const installUpdate = useUpdaterStore((state) => state.install)
+  const relaunchUpdate = useUpdaterStore((state) => state.relaunch)
+  const resetUpdate = useUpdaterStore((state) => state.reset)
+
+  const updateStatusLabel: Record<string, string> = {
+    idle: 'sin comprobar',
+    checking: 'comprobando',
+    available: 'disponible',
+    downloading: 'descargando',
+    ready: 'lista',
+    none: 'al día',
+    error: 'error',
+    manual: 'manual',
+    unsupported: 'solo en la app',
+  }
 
   const chooseFolder = async () => {
     const picked = await pickFolder(settings.downloadDir)
@@ -280,6 +306,79 @@ export function SettingsPage() {
           </div>
         </Section>
 
+        <Section title="Actualizaciones" description="Se comprueba una vez al día y solo se instalan paquetes firmados.">
+          <Row label="Versión actual" hint="La versión del binario en ejecución.">
+            <span className="font-mono text-[11px] text-ink-2">{updateRuntime?.version ?? __APP_VERSION__}</span>
+          </Row>
+          <Row label="Instalación" hint="Define si la app puede reemplazarse sola.">
+            <span className="text-[10.5px] text-ink-3">{describeInstallKind(updateRuntime?.installKind)}</span>
+          </Row>
+          <Row label="Última comprobación" hint={`Estado: ${updateStatusLabel[updateStatus] ?? updateStatus}`}>
+            <span className="font-mono text-[10.5px] text-ink-3">{formatLastCheck(lastCheck)}</span>
+          </Row>
+
+          {updateInfo && updateStatus !== 'ready' ? (
+            <Row label={`v${updateInfo.version} disponible`} hint="Descarga firmada con minisign.">
+              {updateStatus === 'downloading' ? (
+                <span className="font-mono text-[10.5px] text-cyan">
+                  {Math.round(updateProgress.percent * 100)}%
+                </span>
+              ) : (
+                <Button size="sm" variant="accent" onClick={() => void installUpdate()}>
+                  Actualizar
+                </Button>
+              )}
+            </Row>
+          ) : null}
+
+          {updateStatus === 'ready' ? (
+            <Row label="Lista para aplicar" hint="La app se reinicia para usar la versión nueva.">
+              <Button size="sm" variant="accent" onClick={() => void relaunchUpdate()}>
+                Reiniciar
+              </Button>
+            </Row>
+          ) : null}
+
+          {updateStatus === 'error' && updateError ? (
+            <Row label="No se pudo actualizar">
+              <span className="max-w-[300px] text-right text-[10px] leading-4 text-rose">{updateError}</span>
+            </Row>
+          ) : null}
+
+          {skippedVersion ? (
+            <Row label={`Omitiste ${skippedVersion}`} hint="No se vuelve a ofrecer hasta que la restablezcas.">
+              <Button size="sm" variant="secondary" onClick={() => void resetUpdate()}>
+                Volver a mostrar
+              </Button>
+            </Row>
+          ) : null}
+
+          <div className="flex items-center justify-between gap-3 px-3.5 py-2.5">
+            <p className="text-[10px] leading-4 text-ink-3">
+              Si la firma no coincide con la clave pública, la actualización se rechaza.
+            </p>
+            <Button
+              size="sm"
+              variant="secondary"
+              disabled={updateStatus === 'checking' || updateStatus === 'downloading'}
+              onClick={() => void checkNow(true)}
+            >
+              <RefreshCw
+                className={cn('size-3', updateStatus === 'checking' && 'animate-spin')}
+                strokeWidth={1.9}
+              />
+              Buscar
+            </Button>
+          </div>
+
+          {updateRuntime && !updateRuntime.canSelfUpdate ? (
+            <p className="border-t border-line px-3.5 py-2.5 text-[10px] leading-4 text-amber/90">
+              Esta instalación ({describeInstallKind(updateRuntime.installKind)}) se actualiza a mano. Descargá la
+              versión nueva desde la página de releases.
+            </p>
+          ) : null}
+        </Section>
+
         <Section title="Apariencia">
           <Row label="Reducir animaciones" hint="Desactiva pulsos y transiciones decorativas.">
             <Toggle
@@ -291,7 +390,7 @@ export function SettingsPage() {
         </Section>
 
         <div className="flex items-center justify-between px-1 pb-4 text-[10px] text-ink-3">
-          <span>Media Downloader 0.1.0</span>
+          <span>Media Downloader {updateRuntime?.version ?? __APP_VERSION__}</span>
           <span className="font-mono">
             {capabilities?.platform ?? 'web'} · yt-dlp {capabilities?.ytdlp ?? '—'}
           </span>

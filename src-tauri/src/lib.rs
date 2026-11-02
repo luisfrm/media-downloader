@@ -1,6 +1,7 @@
 mod commands;
 mod paths;
 mod process;
+mod runtime;
 mod settings;
 
 use process::ProcessRegistry;
@@ -12,6 +13,8 @@ pub fn run() {
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_clipboard_manager::init())
+        .plugin(tauri_plugin_updater::Builder::new().build())
+        .plugin(tauri_plugin_process::init())
         .manage(ProcessRegistry::default())
         .setup(|app| {
             if let Some(window) = app.get_webview_window("main") {
@@ -35,6 +38,7 @@ pub fn run() {
             commands::load_settings,
             commands::save_settings,
             commands::default_download_dir,
+            runtime::runtime_info,
         ])
         .run(tauri::generate_context!())
         .expect("error while running Media Downloader");

@@ -70,6 +70,7 @@ const KINDS = [
   { ext: '.exe', suffix: '-setup.exe' },
   { ext: '.deb', suffix: '.deb' },
   { ext: '.AppImage', suffix: '.AppImage' },
+  { ext: '.app.tar.gz', suffix: '.app.tar.gz' },
   { ext: '.dmg', suffix: '.dmg' },
   { ext: '.rpm', suffix: '.rpm' },
 ]
@@ -79,6 +80,7 @@ if (!found.length) fail(`No se encontraron archivos en ${input}. ¿Compilaste lo
 
 mkdirSync(output, { recursive: true })
 const produced = []
+const signatures = []
 
 for (const kind of KINDS) {
   const matches = found.filter((file) => file.toLowerCase().endsWith(kind.ext.toLowerCase()))
@@ -86,6 +88,15 @@ for (const kind of KINDS) {
     const name = `${prefix}${index === 0 ? '' : `-${index + 1}`}${kind.suffix}`
     copyFileSync(file, path.join(output, name))
     produced.push(name)
+
+    // Tauri writes the updater signature next to the bundle when
+    // createUpdaterArtifacts is enabled. Keep the name aligned with the
+    // normalized artifact so latest.json can reference it.
+    if (existsSync(`${file}.sig`)) {
+      const signature = `${name}.sig`
+      copyFileSync(`${file}.sig`, path.join(output, signature))
+      signatures.push(signature)
+    }
   })
 }
 
@@ -94,4 +105,8 @@ if (!produced.length) fail(`No hay instaladores reconocibles en ${input}`)
 for (const name of produced) {
   const size = statSync(path.join(output, name)).size
   console.log(`✓ ${name} (${(size / 1024 / 1024).toFixed(1)} MB)`)
+}
+
+for (const name of signatures) {
+  console.log(`✓ ${name} (firma de actualización)`)
 }

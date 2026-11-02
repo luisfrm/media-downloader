@@ -4,6 +4,8 @@ App de escritorio para descargar video, audio, miniaturas y subtítulos de YouTu
 
 Dark UI en azul/cian, barra lateral colapsable, cola con progreso real y biblioteca local.
 
+Landing y descargas: **[media-downloader-landing.luisfrm.workers.dev](https://media-downloader-landing.luisfrm.workers.dev)** · [código de la landing](landing/) · [cómo se despliega](docs/LANDING.md).
+
 ## Descargas
 
 Última versión: **[v0.1.0](https://github.com/luisfrm/media-downloader/releases/latest)**
@@ -19,8 +21,9 @@ Dark UI en azul/cian, barra lateral colapsable, cola con progreso real y bibliot
 Los instaladores ya incluyen `yt-dlp` y `ffmpeg`. No hace falta instalar nada más.
 
 - Instalación por sistema, SmartScreen/Gatekeeper y verificación de checksums: [docs/INSTALL.md](docs/INSTALL.md).
+- El `.exe` (NSIS) y el AppImage se actualizan solos con paquetes firmados; el `.msi`, el `.deb` y el `.dmg` se reinstalan a mano. Ver [docs/AUTO_UPDATES.md](docs/AUTO_UPDATES.md).
 - macOS Intel no está publicado todavía; solo `arm64`.
-- Los nombres de archivo incluyen la versión. Para la versión más reciente usá siempre la [página de releases](https://github.com/luisfrm/media-downloader/releases/latest).
+- Los nombres de archivo incluyen la versión. Para la versión más reciente usá siempre la [página de releases](https://github.com/luisfrm/media-downloader/releases/latest) o la [landing](https://media-downloader-landing.luisfrm.workers.dev/descargar).
 
 ## Stack
 
@@ -68,7 +71,10 @@ En modo navegador, `dev/plugin.ts` expone el mismo contrato que los comandos de 
 | `pnpm build` | Typecheck + build de producción |
 | `pnpm build:installer` | Instaladores locales (`tauri build`) |
 | `pnpm setup:binaries` | Descarga yt-dlp y ffmpeg para tu SO |
-| `pnpm release patch` | Bump + commit + push; CI publica el release |
+| `pnpm release:patch` | Bump patch + commit + push; CI publica al llegar a `master` |
+| `pnpm release:minor` / `major` / `set X.Y.Z` | Igual, con otro salto de versión |
+| `cd landing && pnpm dev` | Landing en `http://localhost:4321` |
+| `cd landing && pnpm build` | Landing estática (sincroniza el último release y el OG) |
 
 ## Arquitectura
 
@@ -103,8 +109,8 @@ yt-dlp (Python 3.14) falla con `OSError: [Errno 22]` al escribir el progreso en 
 ## Tests
 
 ```bash
-pnpm test                # 85 tests unitarios y de componentes
-pnpm test:rust           # 6 tests de Rust
+pnpm test                # 91 tests unitarios y de componentes
+pnpm test:rust           # 11 tests de Rust (progreso, paths, runtime)
 pnpm test:e2e            # 6 flujos E2E en Chromium (sin red: yt-dlp stubbeado)
 ```
 
@@ -124,19 +130,21 @@ Ese script analiza el link real de X, descarga el MP4 y verifica que pase a **Fi
 La versión vive en un solo lugar: `package.json`.
 
 ```bash
-pnpm release patch     # 0.1.0 -> 0.1.1
-# o: pnpm release minor | major | 1.2.3
+git checkout -b release/0.1.1
+pnpm release:patch     # 0.1.1
+# o: pnpm release:minor | release:major | release:set 2.0.0
 ```
 
-`scripts/release.mjs` hace cinco cosas:
+`scripts/release.mjs`:
 
 1. Verifica que el árbol de trabajo esté limpio y que la versión no baje.
 2. Sube `version` en `package.json`.
 3. Ejecuta `scripts/sync-version.mjs` → `Cargo.toml`, `Cargo.lock` y `tauri.conf.json`.
 4. Commitea `chore(release): vX.Y.Z`.
-5. Pushea a `master` (el admin conserva el bypass de branch protection).
+5. Pushea la rama actual (`--no-push` para dejarlo local).
 
-El tag **no** lo crea el script. Lo crea CI, y solo si los tres builds pasan.
+El tag **no** lo crea el script: lo crea CI cuando publica. Un PR nunca publica;
+el push del merge a `master` es el que dispara el release.
 
 ### Qué hace CI
 
@@ -144,24 +152,28 @@ Workflow: `.github/workflows/build.yml`
 
 | Job | Qué hace |
 |---|---|
-| `version` | Lee `package.json` y pregunta si `vX.Y.Z` ya existe. Si no existe → `publish=true`. En PRs siempre es `false`. |
+| `changes` | Detecta si hay cambios de app. Un push que solo toca `landing/**` o docs no compila la app. |
+| `version` | Lee `package.json` y decide `publish`. En PRs siempre `false`; si el tag/release existe, `false`; con `force=true`, `true`. |
 | `audit` | `pnpm audit --prod` (informativo). |
 | `checks` | `pnpm lint:yaml`. |
-| `build` ×3 | Windows, Linux y macOS: instala, baja `yt-dlp`/`ffmpeg`, compila el frontend, corre tests TS + Rust + E2E (Linux), empaqueta, normaliza nombres y sube artifacts. |
-| `publish` | Solo si `publish=true`: descarga los artifacts, agrega `INSTALL.md`, genera `SHA256SUMS.txt`, firma la procedencia y crea/actualiza el release. |
+| `build` ×3 | Windows, Linux y macOS: instala, baja `yt-dlp`/`ffmpeg`, compila, testea TS + Rust + E2E (Linux), firma, empaqueta y sube artifacts. |
+| `publish` | Solo en `master` con `publish=true`: crea/retoma un **draft**, genera `latest.json` + `SHA256SUMS.txt`, firma la procedencia, sube los assets y publica. |
+| `CI` | Agregado que siempre reporta. Es el check requerido junto a `Landing`. |
 
-Resultado: un release con 5 instaladores (`msi`, `setup.exe`, `AppImage`, `deb`, `dmg`) + `INSTALL.md` + `SHA256SUMS.txt`.
+Resultado: 5 instaladores + `.sig` de actualización + `.app.tar.gz` de macOS +
+`INSTALL.md` + `SHA256SUMS.txt` + `latest.json`.
 
 ### Reglas
 
-- **Push sin bump de versión**: compila y testea los 3 sistemas, pero **no publica**.
+- **Push sin bump de versión**: compila y testea, pero **no publica**.
 - **PR**: compila y testea, nunca publica.
-- **Republicar la misma versión**: Actions → **Release** → **Run workflow** → marcar `force`.
-- **Si un build falla**: no se crea tag ni release; se corrige y se vuelve a pushear.
-- **Firma/notarización**: pendiente. Windows SmartScreen y macOS Gatekeeper van a advertir.
+- **Reintentar / completar un draft**: Actions → **Release** → *Run workflow* → `force`.
+- **Release ya publicado**: es inmutable; no se sobreescribe. Se publica una versión nueva.
+- **Firma**: el `.exe` (NSIS) y el AppImage se actualizan solos con minisign. El `.msi`, `.deb` y `.dmg` son manuales. Claves en [docs/AUTO_UPDATES.md](docs/AUTO_UPDATES.md).
+- **Landing**: workflow aparte. Un push a `landing/**` no corre la matriz de la app; al publicar un release, `Landing` se reconstruye con `workflow_run`.
 
-Detalle completo (branch protection, permisos, trampas conocidas): [docs/RELEASING.md](docs/RELEASING.md).
-
+Detalle completo (branch protection, drafts, trampas conocidas): [docs/RELEASING.md](docs/RELEASING.md).
+Landing y Workers: [docs/LANDING.md](docs/LANDING.md).
 Instalación por sistema: [docs/INSTALL.md](docs/INSTALL.md).
 
 ## Estado
@@ -172,6 +184,8 @@ Instalación por sistema: [docs/INSTALL.md](docs/INSTALL.md).
 - [x] Backend Tauri con ejecución de procesos y persistencia
 - [x] Motor empaquetado en los instaladores (yt-dlp + ffmpeg)
 - [x] Release multiplataforma automatizado con checksums y attestation
-- [ ] Firma de código Windows / notarización macOS
-- [ ] Auto-update
+- [x] Actualizaciones firmadas en Windows `.exe` y Linux AppImage
+- [x] Landing estática con SEO, shared image y deploy en Cloudflare Workers
+- [x] CI separado para app y landing (checks `CI` + `Landing`)
+- [ ] Firma de código Windows / notarización macOS (bloquea el auto-update en `.msi`/`.dmg`)
 - [ ] macOS Intel (el matrix publica solo arm64)
