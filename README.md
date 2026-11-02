@@ -4,7 +4,7 @@ App de escritorio para descargar video, audio, miniaturas y subtítulos de YouTu
 
 Dark UI en azul/cian, barra lateral colapsable, cola con progreso real y biblioteca local.
 
-Landing y descargas: **[media-downloader-landing.luisfrm.workers.dev](https://media-downloader-landing.luisfrm.workers.dev)** · [código de la landing](landing/) · [cómo se despliega](docs/LANDING.md).
+Landing y descargas: [código de la landing](landing/) · [cómo se despliega en Workers](docs/LANDING.md). El sitio es estático y se publica con Cloudflare Workers.
 
 ## Descargas
 
@@ -187,5 +187,5 @@ Instalación por sistema: [docs/INSTALL.md](docs/INSTALL.md).
 - [x] Actualizaciones firmadas en Windows `.exe` y Linux AppImage
 - [x] Landing estática con SEO, shared image y deploy en Cloudflare Workers
 - [x] CI separado para app y landing (checks `CI` + `Landing`)
-- [ ] Firma de código Windows / notarización macOS (bloquea el auto-update en `.msi`/`.dmg`)
+- [ ] Firma de código Windows / notarización macOS (SmartScreen/Gatekeeper)
 - [ ] macOS Intel (el matrix publica solo arm64)

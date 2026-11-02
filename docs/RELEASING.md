@@ -104,6 +104,9 @@ crear draft → subir assets → gh release edit --draft=false --latest
 Un release publicado no se puede modificar. La consecuencia práctica: **no se
 parchea un release**. Si el build salió mal, se publica una versión nueva.
 
+La opción **immutable releases** del repositorio está activada: ni siquiera un
+admin puede reemplazar assets de un release publicado.
+
 Si el upload falla a mitad de camino, el draft queda. Se completa con:
 
 Actions → **Release** → *Run workflow* → `force = true`.

@@ -65,8 +65,9 @@ publish:
     attestations: write
 ```
 
-The landing workflow only has `contents: read`; it deploys with a Cloudflare API
-token stored as a secret. Fork PRs get neither secrets nor write access.
+The landing workflow only has read-only access (`contents: read`,
+`pull-requests: read`); it deploys with a Cloudflare API token stored as a secret.
+Fork PRs get neither secrets nor write access.
 
 ## Actions are pinned to a commit
 
@@ -107,6 +108,7 @@ supply-chain attacks; exceptions are listed explicitly.
 | Admin bypass | Allowed (the owner can still run `pnpm release` on `master`) |
 | Squash-only merges | Yes |
 | Delete branch on merge | Yes |
+| Immutable releases | On (a published release cannot be modified) |
 
 `CI` is an aggregate in `build.yml`: it reports success when the app did not change
 and the matrix was intentionally skipped. `Landing` does the same for the static
