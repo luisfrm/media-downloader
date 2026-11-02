@@ -169,7 +169,7 @@ jobs:
           - os: macos-latest
             name: macOS arm64
             key: macos-arm64
-            bundles: dmg
+            bundles: dmg,app
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout
@@ -302,6 +302,16 @@ jobs:
 
       - name: Add install guide
         run: cp docs/INSTALL.md release/INSTALL.md
+
+      - name: Check updater artifacts
+        run: |
+          set -e
+          for pattern in '*-setup.exe' '*-setup.exe.sig' '*.AppImage' '*.AppImage.sig' '*.app.tar.gz' '*.app.tar.gz.sig'; do
+            if ! compgen -G "release/$pattern" > /dev/null; then
+              echo "::error::Falta $pattern. Un target updater no se compiló (macOS necesita el bundle app)."
+              exit 1
+            fi
+          done
 
       - name: Create or resume the draft release
         env:
