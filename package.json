@@ -1,7 +1,7 @@
 {
   "name": "media-downloader",
   "private": true,
-  "version": "0.1.0",
+  "version": "0.1.1",
   "type": "module",
   "description": "Desktop media downloader for social platforms",
   "packageManager": "pnpm@11.5.3",
