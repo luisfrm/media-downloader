@@ -24,7 +24,7 @@ permissions:
   pull-requests: read
 
 env:
-  SITE_URL: ${{ vars.LANDING_URL || 'https://media-downloader.luisfrm.workers.dev' }}
+  SITE_URL: ${{ vars.LANDING_URL || 'https://media-downloader-landing.luisfrm.workers.dev' }}
 
 jobs:
   landing:
