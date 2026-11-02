@@ -10,6 +10,7 @@ test-results/
 playwright-report/
 .playwright-mcp/
 .agents/
+.hallmark/
 .secrets/
 probe.json
 icon-source.png

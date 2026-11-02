@@ -103,18 +103,36 @@ async function ensureFfmpeg() {
 
   if (process.platform === 'linux') {
     const arch = process.arch === 'arm64' ? 'arm64' : 'amd64'
+    const build = process.arch === 'arm64' ? 'linuxarm64' : 'linux64'
+    const url = `https://github.com/BtbN/FFmpeg-Builds/releases/latest/download/ffmpeg-master-latest-${build}-gpl.tar.xz`
     const archive = path.join(tmpDir, `ffmpeg-${arch}.tar.xz`)
-    await download(`https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-${arch}-static.tar.xz`, archive)
     const extracted = path.join(tmpDir, 'ffmpeg-extracted')
-    rmSync(extracted, { recursive: true, force: true })
-    mkdirSync(extracted, { recursive: true })
-    execFileSync('tar', ['-xf', archive, '-C', extracted])
-    const found = findFile(extracted, 'ffmpeg')
-    if (!found) throw new Error('No se encontró el binario ffmpeg')
-    moveFile(found, target)
-    chmodSync(target, 0o755)
-    console.log('✓ ffmpeg listo')
-    return
+    let lastError
+
+    for (let attempt = 1; attempt <= 3; attempt += 1) {
+      try {
+        await download(url, archive)
+        rmSync(extracted, { recursive: true, force: true })
+        mkdirSync(extracted, { recursive: true })
+        execFileSync('tar', ['-xf', archive, '-C', extracted])
+        const found = findFile(extracted, 'ffmpeg')
+        if (!found) throw new Error('No se encontró el binario ffmpeg dentro del archivo descargado')
+        moveFile(found, target)
+        chmodSync(target, 0o755)
+        console.log('✓ ffmpeg listo')
+        return
+      } catch (error) {
+        lastError = error
+        rmSync(archive, { force: true })
+        if (attempt < 3) {
+          const wait = attempt * 2000
+          console.warn(`  ffmpeg intento ${attempt} falló; reintento en ${wait} ms`)
+          await new Promise((resolve) => setTimeout(resolve, wait))
+        }
+      }
+    }
+
+    throw new Error(`No se pudo preparar ffmpeg: ${lastError instanceof Error ? lastError.message : lastError}`)
   }
 
   console.warn(`! Plataforma sin descarga automática de ffmpeg: ${process.platform}`)
