@@ -3,6 +3,12 @@ name: Landing
 on:
   push:
     branches: [master]
+    # Un push a master que no toca la landing no genera ni un run: el deploy
+    # solo depende de la landing, del release que la alimenta y de este workflow.
+    paths:
+      - 'landing/**'
+      - 'docs/LANDING.md'
+      - '.github/workflows/landing.yml'
   pull_request:
     branches: [master]
   workflow_dispatch:
@@ -86,7 +92,10 @@ jobs:
         run: pnpm build
 
       - name: Deploy
+        # Sin el filtro acá, un push que no toca landing/ corre `pnpm deploy`
+        # sin haber instalado nada (los pasos previos están condicionados).
         if: >-
+          (steps.filter.outputs.landing == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'workflow_run') &&
           github.event_name != 'pull_request' &&
           github.ref == 'refs/heads/master' &&
           env.CLOUDFLARE_API_TOKEN != '' &&

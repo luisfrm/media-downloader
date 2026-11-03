@@ -163,15 +163,23 @@ assets nuevos sin intervención manual.
 
 | Cambio | `CI` (Release) | `Landing` |
 | --- | --- | --- |
-| `src/**`, `src-tauri/**` | matriz de 3 SO | no-op (check verde) |
-| `landing/**` | no-op (check verde) | build + deploy |
-| `release: published` | — | rebuild + deploy |
-| PR de landing | `CI` verde sin compilar la app | build (sin deploy) |
+| `src/**`, `src-tauri/**` (push a `master`) | matriz de 3 SO | no corre |
+| `landing/**`, `docs/LANDING.md` (push a `master`) | no-op (check verde) | build + deploy |
+| `Release` termina en `master` | — | rebuild + deploy |
+| PR con cambios de landing | `CI` verde sin compilar la app | build (sin deploy) |
+| PR sin cambios de landing | `CI` | no-op (check verde) |
 
 `build.yml` usa `dorny/paths-filter` para decidir si corre la matriz, y el job
-agregado `CI` siempre reporta (incluye el caso "build skipped"). `landing.yml`
-siempre reporta `Landing`, aunque no haya cambios. Por eso la protección de
-`master` exige **`CI` + `Landing`** y no los cinco checks antiguos.
+agregado `CI` siempre reporta (incluye el caso "build skipped").
+
+`landing.yml` filtra los push a `master` por `paths`: si no se tocó la landing ni
+este workflow, no hay run. En PR no se puede filtrar igual porque `Landing` es un
+check requerido de `master`: un workflow que nunca corre deja el check en
+"Expected" y bloquea el merge. Por eso en PR el job sí arranca, pero
+`dorny/paths-filter` saltea todos los pasos y reporta verde en segundos.
+
+Ese es el motivo de que la protección de `master` exija **`CI` + `Landing`** y no
+los cinco checks antiguos.
 
 ## Coste esperado
 
