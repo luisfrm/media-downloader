@@ -165,7 +165,7 @@ assets nuevos sin intervención manual.
 | --- | --- | --- |
 | `src/**`, `src-tauri/**` (push a `master`) | matriz de 3 SO | no corre |
 | `landing/**`, `docs/LANDING.md` (push a `master`) | no-op (check verde) | build + deploy |
-| `Release` termina en `master` | — | rebuild + deploy |
+| `Release` termina en `master` | — | rebuild + deploy, solo si publicó una versión |
 | PR con cambios de landing | `CI` verde sin compilar la app | build (sin deploy) |
 | PR sin cambios de landing | `CI` | no-op (check verde) |
 
@@ -180,6 +180,16 @@ check requerido de `master`: un workflow que nunca corre deja el check en
 
 Ese es el motivo de que la protección de `master` exija **`CI` + `Landing`** y no
 los cinco checks antiguos.
+
+`workflow_run` dispara con **cada** run de `Release`, pero la landing solo se
+reconstruye si ese run publicó algo: un paso consulta los jobs del run y exige que
+`Publish release` haya terminado en `success`. Un push de app sin bump de versión
+deja el run de `Landing` en verde sin instalar ni compilar nada. Si la API de
+Actions falla al leerlo, se reconstruye por las dudas.
+
+La concurrencia está separada por evento (`landing-<evento>-<ref>`): si no, el
+`workflow_run` que sigue a cada push cancelaría el deploy que disparó el push de
+la landing.
 
 ## Coste esperado
 

@@ -22,12 +22,15 @@ on:
     types: [completed]
 
 concurrency:
-  group: landing-${{ github.ref }}
+  # Por evento: el run de workflow_run que sigue a cada push a master no debe
+  # cancelar el deploy que disparó el push de la landing.
+  group: landing-${{ github.event_name }}-${{ github.ref }}
   cancel-in-progress: true
 
 permissions:
   contents: read
   pull-requests: read
+  actions: read # leer los jobs del run de Release para saber si publicó
 
 env:
   SITE_URL: ${{ vars.LANDING_URL || 'https://media-downloader-landing.luisfrm.workers.dev' }}
@@ -60,14 +63,50 @@ jobs:
               - 'docs/LANDING.md'
               - '.github/workflows/landing.yml'
 
+      - name: Check the release published a version
+        id: release
+        if: github.event_name == 'workflow_run'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RUN_ID: ${{ github.event.workflow_run.id }}
+        run: |
+          conclusion=$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$RUN_ID/jobs" \
+            --jq '.jobs[] | select(.name == "Publish release") | .conclusion') || conclusion=""
+          if [ -z "$conclusion" ]; then
+            echo "::warning::No se pudo leer el run de Release; se reconstruye por las dudas."
+            echo "publish=true" >> "$GITHUB_OUTPUT"
+          elif [ "$conclusion" = "success" ]; then
+            echo "publish=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "publish=false" >> "$GITHUB_OUTPUT"
+            echo "El run de Release no publicó una versión ($conclusion): la landing queda como está."
+          fi
+
+      - name: Decide whether to build and deploy
+        id: gate
+        env:
+          EVENT: ${{ github.event_name }}
+          LANDING: ${{ steps.filter.outputs.landing }}
+          PUBLISHED: ${{ steps.release.outputs.publish }}
+        run: |
+          if [ "$EVENT" = "workflow_run" ]; then
+            run="$PUBLISHED"
+          elif [ "$EVENT" = "workflow_dispatch" ]; then
+            run=true
+          else
+            run="$LANDING"
+          fi
+          echo "run=$run" >> "$GITHUB_OUTPUT"
+          echo "Landing run=$run (evento: $EVENT)"
+
       - name: Setup pnpm
-        if: steps.filter.outputs.landing == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'workflow_run'
+        if: steps.gate.outputs.run == 'true'
         uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
         with:
           run_install: false
 
       - name: Setup Node
-        if: steps.filter.outputs.landing == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'workflow_run'
+        if: steps.gate.outputs.run == 'true'
         uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version-file: landing/.node-version
@@ -75,27 +114,27 @@ jobs:
           cache-dependency-path: landing/pnpm-lock.yaml
 
       - name: Install dependencies
-        if: steps.filter.outputs.landing == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'workflow_run'
+        if: steps.gate.outputs.run == 'true'
         working-directory: landing
         run: pnpm install --frozen-lockfile
 
       - name: Check
-        if: steps.filter.outputs.landing == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'workflow_run'
+        if: steps.gate.outputs.run == 'true'
         working-directory: landing
         run: pnpm check
 
       - name: Build
-        if: steps.filter.outputs.landing == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'workflow_run'
+        if: steps.gate.outputs.run == 'true'
         working-directory: landing
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: pnpm build
 
       - name: Deploy
-        # Sin el filtro acá, un push que no toca landing/ corre `pnpm deploy`
-        # sin haber instalado nada (los pasos previos están condicionados).
+        # El gate evita correr `pnpm deploy` sin haber instalado nada y evita
+        # desplegar por un run de Release que no publicó una versión.
         if: >-
-          (steps.filter.outputs.landing == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'workflow_run') &&
+          steps.gate.outputs.run == 'true' &&
           github.event_name != 'pull_request' &&
           github.ref == 'refs/heads/master' &&
           env.CLOUDFLARE_API_TOKEN != '' &&
@@ -105,7 +144,7 @@ jobs:
 
       - name: Explain skipped deploy
         if: >-
-          steps.filter.outputs.landing == 'true' &&
+          steps.gate.outputs.run == 'true' &&
           github.event_name != 'pull_request' &&
           env.CLOUDFLARE_API_TOKEN == ''
         run: |
