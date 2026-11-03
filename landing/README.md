@@ -31,3 +31,14 @@ pnpm deploy
 | `CLOUDFLARE_ACCOUNT_ID` | secreto de GitHub | `wrangler deploy` |
 
 Sin `CLOUDFLARE_API_TOKEN`, el CI compila y valida pero no despliega.
+
+## Releases
+
+`src/data/release.json` guarda la versión y los assets del último release
+(**v0.1.1** al momento de este commit). `pnpm build` lo reescribe con
+`scripts/fetch-release.mjs` consultando la API de GitHub; si la API no responde,
+se conserva el archivo commiteado como fallback. Para refrescarlo sin compilar:
+
+```bash
+pnpm sync:release
+```

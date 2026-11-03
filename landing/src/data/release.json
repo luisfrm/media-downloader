@@ -1,36 +1,36 @@
 {
-  "version": "0.1.0",
-  "tag": "v0.1.0",
-  "publishedAt": "2026-10-30T21:41:44Z",
-  "releaseUrl": "https://github.com/luisfrm/media-downloader/releases/tag/v0.1.0",
+  "version": "0.1.1",
+  "tag": "v0.1.1",
+  "publishedAt": "2026-11-02T07:11:23Z",
+  "releaseUrl": "https://github.com/luisfrm/media-downloader/releases/tag/v0.1.1",
   "assets": {
     "windowsSetup": {
-      "name": "Media-Downloader_0.1.0_windows-x64-setup.exe",
-      "url": "https://github.com/luisfrm/media-downloader/releases/download/v0.1.0/Media-Downloader_0.1.0_windows-x64-setup.exe",
-      "size": 74035743
+      "name": "Media-Downloader_0.1.1_windows-x64-setup.exe",
+      "url": "https://github.com/luisfrm/media-downloader/releases/download/v0.1.1/Media-Downloader_0.1.1_windows-x64-setup.exe",
+      "size": 74738158
     },
     "windowsMsi": {
-      "name": "Media-Downloader_0.1.0_windows-x64.msi",
-      "url": "https://github.com/luisfrm/media-downloader/releases/download/v0.1.0/Media-Downloader_0.1.0_windows-x64.msi",
-      "size": 92106752
+      "name": "Media-Downloader_0.1.1_windows-x64.msi",
+      "url": "https://github.com/luisfrm/media-downloader/releases/download/v0.1.1/Media-Downloader_0.1.1_windows-x64.msi",
+      "size": 92979200
     },
     "linuxAppImage": {
-      "name": "Media-Downloader_0.1.0_linux-x64.AppImage",
-      "url": "https://github.com/luisfrm/media-downloader/releases/download/v0.1.0/Media-Downloader_0.1.0_linux-x64.AppImage",
-      "size": 149281272
+      "name": "Media-Downloader_0.1.1_linux-x64.AppImage",
+      "url": "https://github.com/luisfrm/media-downloader/releases/download/v0.1.1/Media-Downloader_0.1.1_linux-x64.AppImage",
+      "size": 187750904
     },
     "linuxDeb": {
-      "name": "Media-Downloader_0.1.0_linux-x64.deb",
-      "url": "https://github.com/luisfrm/media-downloader/releases/download/v0.1.0/Media-Downloader_0.1.0_linux-x64.deb",
-      "size": 73736904
+      "name": "Media-Downloader_0.1.1_linux-x64.deb",
+      "url": "https://github.com/luisfrm/media-downloader/releases/download/v0.1.1/Media-Downloader_0.1.1_linux-x64.deb",
+      "size": 116547830
     },
     "macosDmg": {
-      "name": "Media-Downloader_0.1.0_macos-arm64.dmg",
-      "url": "https://github.com/luisfrm/media-downloader/releases/download/v0.1.0/Media-Downloader_0.1.0_macos-arm64.dmg",
-      "size": 39739807
+      "name": "Media-Downloader_0.1.1_macos-arm64.dmg",
+      "url": "https://github.com/luisfrm/media-downloader/releases/download/v0.1.1/Media-Downloader_0.1.1_macos-arm64.dmg",
+      "size": 40524500
     }
   },
-  "checksums": "https://github.com/luisfrm/media-downloader/releases/download/v0.1.0/SHA256SUMS.txt",
-  "installGuide": "https://github.com/luisfrm/media-downloader/releases/download/v0.1.0/INSTALL.md",
+  "checksums": "https://github.com/luisfrm/media-downloader/releases/download/v0.1.1/SHA256SUMS.txt",
+  "installGuide": "https://github.com/luisfrm/media-downloader/releases/download/v0.1.1/INSTALL.md",
   "source": "github"
 }

@@ -8,15 +8,15 @@ Landing y descargas: [código de la landing](landing/) · [cómo se despliega en
 
 ## Descargas
 
-Última versión: **[v0.1.0](https://github.com/luisfrm/media-downloader/releases/latest)**
+Última versión: **[v0.1.1](https://github.com/luisfrm/media-downloader/releases/latest)**
 
 | Sistema | Instalador | Descarga |
 |---|---|---|
-| Windows 10/11 x64 | `Media-Downloader_0.1.0_windows-x64-setup.exe` (NSIS) | [Descargar](https://github.com/luisfrm/media-downloader/releases/download/v0.1.0/Media-Downloader_0.1.0_windows-x64-setup.exe) |
-| Windows 10/11 x64 | `Media-Downloader_0.1.0_windows-x64.msi` | [Descargar](https://github.com/luisfrm/media-downloader/releases/download/v0.1.0/Media-Downloader_0.1.0_windows-x64.msi) |
-| Linux x64 | `Media-Downloader_0.1.0_linux-x64.AppImage` | [Descargar](https://github.com/luisfrm/media-downloader/releases/download/v0.1.0/Media-Downloader_0.1.0_linux-x64.AppImage) |
-| Linux x64 | `Media-Downloader_0.1.0_linux-x64.deb` | [Descargar](https://github.com/luisfrm/media-downloader/releases/download/v0.1.0/Media-Downloader_0.1.0_linux-x64.deb) |
-| macOS arm64 | `Media-Downloader_0.1.0_macos-arm64.dmg` | [Descargar](https://github.com/luisfrm/media-downloader/releases/download/v0.1.0/Media-Downloader_0.1.0_macos-arm64.dmg) |
+| Windows 10/11 x64 | `Media-Downloader_0.1.1_windows-x64-setup.exe` (NSIS) | [Descargar](https://github.com/luisfrm/media-downloader/releases/download/v0.1.1/Media-Downloader_0.1.1_windows-x64-setup.exe) |
+| Windows 10/11 x64 | `Media-Downloader_0.1.1_windows-x64.msi` | [Descargar](https://github.com/luisfrm/media-downloader/releases/download/v0.1.1/Media-Downloader_0.1.1_windows-x64.msi) |
+| Linux x64 | `Media-Downloader_0.1.1_linux-x64.AppImage` | [Descargar](https://github.com/luisfrm/media-downloader/releases/download/v0.1.1/Media-Downloader_0.1.1_linux-x64.AppImage) |
+| Linux x64 | `Media-Downloader_0.1.1_linux-x64.deb` | [Descargar](https://github.com/luisfrm/media-downloader/releases/download/v0.1.1/Media-Downloader_0.1.1_linux-x64.deb) |
+| macOS arm64 | `Media-Downloader_0.1.1_macos-arm64.dmg` | [Descargar](https://github.com/luisfrm/media-downloader/releases/download/v0.1.1/Media-Downloader_0.1.1_macos-arm64.dmg) |
 
 Los instaladores ya incluyen `yt-dlp` y `ffmpeg`. No hace falta instalar nada más.
 
@@ -130,8 +130,8 @@ Ese script analiza el link real de X, descarga el MP4 y verifica que pase a **Fi
 La versión vive en un solo lugar: `package.json`.
 
 ```bash
-git checkout -b release/0.1.1
-pnpm release:patch     # 0.1.1
+git checkout -b release/0.1.2
+pnpm release:patch     # 0.1.2
 # o: pnpm release:minor | release:major | release:set 2.0.0
 ```
 
