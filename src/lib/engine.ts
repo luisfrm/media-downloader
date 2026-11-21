@@ -1,7 +1,7 @@
 import { invoke } from '@tauri-apps/api/core'
 import { listen } from '@tauri-apps/api/event'
 import { open as openDialog } from '@tauri-apps/plugin-dialog'
-import { openPath as openerOpenPath, openUrl as openerOpenUrl, revealItemInDir } from '@tauri-apps/plugin-opener'
+import { openUrl as openerOpenUrl, revealItemInDir } from '@tauri-apps/plugin-opener'
 import { readText as clipboardReadText, writeText as clipboardWriteText } from '@tauri-apps/plugin-clipboard-manager'
 import type { EngineCapabilities, EngineEvent, RuntimeInfo } from './types'
 
@@ -182,7 +182,7 @@ export async function pickFile(current?: string): Promise<string | null> {
 
 export async function openPath(target: string): Promise<void> {
   if (isTauri) {
-    await openerOpenPath(target)
+    await invoke('open_target', { path: target })
     return
   }
   await api('/api/open', { method: 'POST', body: JSON.stringify({ path: target }) })
@@ -193,7 +193,7 @@ export async function revealPath(target: string): Promise<void> {
     await revealItemInDir(target)
     return
   }
-  await openPath(target)
+  await api('/api/reveal', { method: 'POST', body: JSON.stringify({ path: target }) })
 }
 
 export async function openExternal(url: string): Promise<void> {

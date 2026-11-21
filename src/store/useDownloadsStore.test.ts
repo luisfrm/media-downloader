@@ -41,6 +41,8 @@ beforeEach(() => {
   vi.mocked(engine.startDownload).mockClear()
   vi.mocked(engine.pauseDownload).mockClear()
   vi.mocked(engine.cancelDownload).mockClear()
+  vi.mocked(engine.revealPath).mockClear()
+  vi.mocked(engine.openPath).mockClear()
 })
 
 describe('enqueue', () => {
@@ -141,5 +143,29 @@ describe('controls', () => {
     expect(useDownloadsStore.getState().jobs[0]?.phase).toBe('canceled')
     useDownloadsStore.getState().clearFinished()
     expect(useDownloadsStore.getState().jobs).toHaveLength(0)
+  })
+
+  it('reveals the downloaded file, or its folder when there is no path', async () => {
+    const id = useDownloadsStore.getState().enqueue(input())
+    useDownloadsStore.getState().applyEvent({ type: 'progress', id, phase: 'done', filePath: 'C:\\out\\file.mp4' })
+
+    await useDownloadsStore.getState().openJob(id)
+    expect(engine.revealPath).toHaveBeenCalledWith('C:\\out\\file.mp4')
+
+    vi.mocked(engine.revealPath).mockClear()
+    useDownloadsStore.setState({
+      jobs: useDownloadsStore.getState().jobs.map((job) => ({ ...job, filePath: null })),
+    })
+    await useDownloadsStore.getState().openJob(id)
+    expect(engine.revealPath).not.toHaveBeenCalled()
+    expect(engine.openPath).toHaveBeenCalledWith('C:\\out')
+  })
+
+  it('plays a finished file with the default app', async () => {
+    const id = useDownloadsStore.getState().enqueue(input())
+    useDownloadsStore.getState().applyEvent({ type: 'progress', id, phase: 'done', filePath: 'C:\\out\\file.mp4' })
+
+    await useDownloadsStore.getState().playJob(id)
+    expect(engine.openPath).toHaveBeenCalledWith('C:\\out\\file.mp4')
   })
 })

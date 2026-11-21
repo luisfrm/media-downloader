@@ -37,6 +37,7 @@ pub fn run() {
             commands::convert,
             commands::load_settings,
             commands::save_settings,
+            commands::open_target,
             commands::default_download_dir,
             runtime::runtime_info,
         ])

@@ -405,10 +405,21 @@ export function devEngine(): Plugin {
           if (url.pathname === '/api/open' && req.method === 'POST') {
             const body = (await readBody(req)) as { path?: string }
             if (!body.path) return json(res, 400, { error: 'path requerido' })
-            const dir = body.path
-            if (isWin) spawn('explorer', [dir], { windowsHide: true, detached: true }).unref()
-            else if (process.platform === 'darwin') spawn('open', [dir], { detached: true }).unref()
-            else spawn('xdg-open', [dir], { detached: true }).unref()
+            const target = body.path
+            if (isWin) spawn('cmd', ['/c', 'start', '', target], { windowsHide: true, detached: true }).unref()
+            else if (process.platform === 'darwin') spawn('open', [target], { detached: true }).unref()
+            else spawn('xdg-open', [target], { detached: true }).unref()
+            json(res, 200, { ok: true })
+            return
+          }
+
+          if (url.pathname === '/api/reveal' && req.method === 'POST') {
+            const body = (await readBody(req)) as { path?: string }
+            if (!body.path) return json(res, 400, { error: 'path requerido' })
+            const target = body.path
+            if (isWin) spawn('explorer', [`/select,${target}`], { windowsHide: true, detached: true }).unref()
+            else if (process.platform === 'darwin') spawn('open', ['-R', target], { detached: true }).unref()
+            else spawn('xdg-open', [path.dirname(target)], { detached: true }).unref()
             json(res, 200, { ok: true })
             return
           }

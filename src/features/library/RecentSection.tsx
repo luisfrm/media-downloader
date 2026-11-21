@@ -1,14 +1,29 @@
-import { ArrowRight, FolderOpen } from 'lucide-react'
+import { ArrowRight, FolderOpen, Play } from 'lucide-react'
 import { BrandIcon } from '../../components/BrandIcon'
 import { IconButton } from '../../components/ui/IconButton'
-import { useDownloadsStore } from '../../store/useDownloadsStore'
+import { useDownloadsStore, type HistoryItem } from '../../store/useDownloadsStore'
 import { useAppStore } from '../../store/useAppStore'
 import { formatBytes, timeAgo } from '../../lib/format'
-import { openPath } from '../../lib/engine'
+import { playItem, revealItem } from '../../lib/files'
 
 export function RecentSection() {
   const history = useDownloadsStore((state) => state.history)
   const setRoute = useAppStore((state) => state.setRoute)
+  const toast = useAppStore((state) => state.toast)
+
+  const reveal = (item: HistoryItem) => {
+    void revealItem(item).catch(() => toast({ tone: 'error', title: 'No se pudo abrir la carpeta' }))
+  }
+
+  const play = (item: HistoryItem) => {
+    void playItem(item).catch((error: unknown) =>
+      toast({
+        tone: 'error',
+        title: 'No se pudo reproducir',
+        description: error instanceof Error ? error.message : undefined,
+      }),
+    )
+  }
 
   if (!history.length) return null
   const items = history.slice(0, 4)
@@ -58,11 +73,22 @@ export function RecentSection() {
             <span className="w-14 shrink-0 text-right font-mono text-[9.5px] text-ink-3">
               {timeAgo(item.finishedAt)}
             </span>
+            {item.filePath && item.mode !== 'subtitles' ? (
+              <IconButton
+                label={item.mode === 'audio' ? 'Reproducir audio' : 'Reproducir video'}
+                size="sm"
+                tone="accent"
+                className="opacity-0 transition-opacity group-hover:opacity-100 focus-visible:opacity-100"
+                onClick={() => play(item)}
+              >
+                <Play className="size-3.5" strokeWidth={1.9} />
+              </IconButton>
+            ) : null}
             <IconButton
               label="Abrir carpeta"
               size="sm"
               className="opacity-0 transition-opacity group-hover:opacity-100"
-              onClick={() => void openPath(item.filePath ?? item.outputDir)}
+              onClick={() => reveal(item)}
             >
               <FolderOpen className="size-3.5" strokeWidth={1.8} />
             </IconButton>

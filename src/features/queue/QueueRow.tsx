@@ -55,6 +55,7 @@ export function QueueRow({ job }: { job: DownloadJob }) {
   const retry = useDownloadsStore((state) => state.retry)
   const remove = useDownloadsStore((state) => state.remove)
   const openJob = useDownloadsStore((state) => state.openJob)
+  const playJob = useDownloadsStore((state) => state.playJob)
 
   const active = activePhases.has(job.phase)
   const paused = job.phase === 'paused'
@@ -184,6 +185,16 @@ export function QueueRow({ job }: { job: DownloadJob }) {
 
           {done ? (
             <>
+              {job.filePath && job.mode !== 'subtitles' ? (
+                <IconButton
+                  label={job.mode === 'audio' ? 'Reproducir audio' : 'Reproducir video'}
+                  size="sm"
+                  tone="accent"
+                  onClick={() => void playJob(job.id)}
+                >
+                  <Play className="size-3.5" strokeWidth={1.9} />
+                </IconButton>
+              ) : null}
               <IconButton label="Abrir carpeta" size="sm" onClick={() => void openJob(job.id)}>
                 <FolderOpen className="size-3.5" strokeWidth={1.8} />
               </IconButton>

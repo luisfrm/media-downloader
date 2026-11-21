@@ -1,13 +1,13 @@
 import { useState } from 'react'
-import { FolderOpen, Search, Trash2 } from 'lucide-react'
+import { FolderOpen, Play, Search, Trash2 } from 'lucide-react'
 import { BrandIcon } from '../../components/BrandIcon'
 import { Chip } from '../../components/ui/Chip'
 import { IconButton } from '../../components/ui/IconButton'
 import { PageHeader } from '../../components/PageHeader'
-import { useDownloadsStore } from '../../store/useDownloadsStore'
+import { useDownloadsStore, type HistoryItem } from '../../store/useDownloadsStore'
 import { useAppStore } from '../../store/useAppStore'
 import { formatBytes, timeAgo, truncateMiddle } from '../../lib/format'
-import { openPath, revealPath } from '../../lib/engine'
+import { playItem, revealItem } from '../../lib/files'
 import { PLATFORMS, PLATFORM_ORDER } from '../../lib/platform'
 import { cn } from '../../lib/cn'
 import type { Platform } from '../../lib/types'
@@ -18,6 +18,20 @@ export function LibraryPage() {
   const toast = useAppStore((state) => state.toast)
   const [query, setQuery] = useState('')
   const [filter, setFilter] = useState<Platform | 'all'>('all')
+
+  const reveal = (item: HistoryItem) => {
+    void revealItem(item).catch(() => toast({ tone: 'error', title: 'No se pudo abrir la carpeta' }))
+  }
+
+  const play = (item: HistoryItem) => {
+    void playItem(item).catch((error: unknown) =>
+      toast({
+        tone: 'error',
+        title: 'No se pudo reproducir',
+        description: error instanceof Error ? error.message : undefined,
+      }),
+    )
+  }
 
   const items = history.filter((item) => {
     if (filter !== 'all' && item.platform !== filter) return false
@@ -122,10 +136,20 @@ export function LibraryPage() {
               </span>
 
               <div className="flex shrink-0 items-center opacity-0 transition-opacity group-hover:opacity-100 focus-within:opacity-100">
+                {item.filePath && item.mode !== 'subtitles' ? (
+                  <IconButton
+                    label={item.mode === 'audio' ? 'Reproducir audio' : 'Reproducir video'}
+                    size="sm"
+                    tone="accent"
+                    onClick={() => play(item)}
+                  >
+                    <Play className="size-3.5" strokeWidth={1.9} />
+                  </IconButton>
+                ) : null}
                 <IconButton
                   label="Mostrar archivo"
                   size="sm"
-                  onClick={() => void (item.filePath ? revealPath(item.filePath) : openPath(item.outputDir))}
+                  onClick={() => reveal(item)}
                 >
                   <FolderOpen className="size-3.5" strokeWidth={1.8} />
                 </IconButton>

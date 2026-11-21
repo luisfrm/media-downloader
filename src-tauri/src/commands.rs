@@ -91,6 +91,11 @@ pub fn save_settings(app: AppHandle, settings: Value) -> Result<(), String> {
 }
 
 #[tauri::command]
+pub fn open_target(path: String) -> Result<(), String> {
+    tauri_plugin_opener::open_path(&path, None::<&str>).map_err(|error| error.to_string())
+}
+
+#[tauri::command]
 pub fn default_download_dir() -> String {
     paths::default_download_dir().to_string_lossy().to_string()
 }

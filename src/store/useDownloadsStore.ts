@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import * as engine from '../lib/engine'
+import { playItem, revealItem } from '../lib/files'
 import type { DownloadJob, DownloadMode, EngineEvent, JobPhase, Platform } from '../lib/types'
 import { useAppStore } from './useAppStore'
 
@@ -49,6 +50,7 @@ interface DownloadsState {
   clearFinished: () => void
   clearHistory: () => void
   openJob: (id: string) => Promise<void>
+  playJob: (id: string) => Promise<void>
 }
 
 function toHistory(job: DownloadJob): HistoryItem {
@@ -288,10 +290,23 @@ export const useDownloadsStore = create<DownloadsState>()(
         const job = get().jobs.find((item) => item.id === id)
         if (!job) return
         try {
-          if (job.filePath) await engine.revealPath(job.filePath)
-          else await engine.openPath(job.outputDir)
+          await revealItem(job)
         } catch {
           useAppStore.getState().toast({ tone: 'error', title: 'No se pudo abrir la carpeta' })
+        }
+      },
+
+      playJob: async (id) => {
+        const job = get().jobs.find((item) => item.id === id)
+        if (!job) return
+        try {
+          await playItem(job)
+        } catch (error) {
+          useAppStore.getState().toast({
+            tone: 'error',
+            title: 'No se pudo reproducir',
+            description: error instanceof Error ? error.message : undefined,
+          })
         }
       },
     }),
