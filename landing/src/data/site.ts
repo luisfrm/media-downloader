@@ -24,7 +24,7 @@ export const platforms = [
     id: 'youtube',
     name: 'YouTube',
     what: 'Videos, playlists, audio y subtítulos',
-    formats: 'MP4, MP3, FLAC, VTT',
+    formats: 'MP4, MP3, AAC, FLAC, VTT',
   },
   {
     id: 'x',

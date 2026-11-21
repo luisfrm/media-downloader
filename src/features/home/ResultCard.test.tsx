@@ -95,6 +95,22 @@ describe('ResultCard', () => {
     expect(args[args.indexOf('--audio-quality') + 1]).toBe('320K')
   })
 
+  it('extracts AAC in an M4A container at 256 kbps', async () => {
+    const user = userEvent.setup()
+    renderCard()
+
+    await user.click(screen.getByRole('tab', { name: 'Audio' }))
+    await user.click(screen.getByRole('radio', { name: /AAC · 256/i }))
+    await user.click(screen.getByRole('button', { name: 'Descargar' }))
+
+    const args = vi.mocked(engine.startDownload).mock.calls[0]![1]
+    expect(args[args.indexOf('--audio-format') + 1]).toBe('m4a')
+    expect(args[args.indexOf('--audio-quality') + 1]).toBe('256K')
+
+    const job = useDownloadsStore.getState().jobs[0]!
+    expect(job.qualityLabel).toBe('AAC · 256 kbps')
+  })
+
   it('offers the thumbnail tab', async () => {
     const user = userEvent.setup()
     renderCard()

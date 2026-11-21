@@ -227,9 +227,9 @@ const AUDIO_TARGETS: Array<{
     needsFfmpeg: true,
   },
   {
-    id: 'a-m4a-256',
-    label: 'M4A · 256 kbps',
-    detail: 'Eficiente en espacio',
+    id: 'a-aac-256',
+    label: 'AAC · 256 kbps',
+    detail: 'M4A · ideal para música',
     format: 'm4a',
     kbps: 256,
     needsFfmpeg: true,

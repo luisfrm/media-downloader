@@ -57,14 +57,14 @@ const field = [
   'tiktok.com/@  mp4 1080x1920  sin marca de agua',
   'instagram.com/reel  mp4 1080x1350  carrusel',
   'facebook.com/watch  mp4 1280x720  reels',
-  'mp3 320  flac  m4a  wav  opus',
+  'aac 256  mp3 320  flac  wav  opus',
   'windows-x64  70.6 MB  linux-x64  142 MB  macos-arm64  37.9 MB',
   'x.com/DonShelby_/status/2116216248  mp4 1280x1590  13.2 MB',
   'youtube.com/watch  mp4 3840x2160  vtt es',
   'tiktok.com/@  mp4 1080x1920  sin marca de agua',
   'instagram.com/reel  mp4 1080x1350  carrusel',
   'facebook.com/watch  mp4 1280x720  reels',
-  'mp3 320  flac  m4a  wav  opus',
+  'aac 256  mp3 320  flac  wav  opus',
   'windows-x64  70.6 MB  linux-x64  142 MB  macos-arm64  37.9 MB',
 ].join('\n')
 

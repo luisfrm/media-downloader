@@ -244,7 +244,7 @@ export function SettingsPage() {
               {capabilities?.ytdlp ?? 'no detectado'}
             </span>
           </Row>
-          <Row label="ffmpeg" hint="Necesario para 4K, MP3/FLAC y fusión de streams.">
+          <Row label="ffmpeg" hint="Necesario para 4K, MP3/AAC/FLAC y fusión de streams.">
             <span
               className={cn(
                 'rounded-full border px-2 py-0.5 font-mono text-[10px]',
@@ -274,7 +274,7 @@ export function SettingsPage() {
             {!capabilities?.ffmpeg ? (
               <p className="mt-2 flex items-start gap-1.5 rounded-md border border-amber/25 bg-amber/[0.06] px-2 py-1.5 text-[10px] leading-4 text-amber/90">
                 <CircleAlert className="mt-0.5 size-3 shrink-0" />
-                Sin ffmpeg podés bajar MP4 progressive, pero no fusionar 1080p+ ni convertir a MP3.
+                Sin ffmpeg podés bajar MP4 progressive, pero no fusionar 1080p+ ni convertir a MP3/AAC.
               </p>
             ) : null}
           </div>

@@ -179,6 +179,19 @@ describe('subtitles', () => {
 })
 
 describe('buildAudioOptions', () => {
+  it('offers AAC in an M4A container as the music-friendly option', () => {
+    const options = buildAudioOptions(
+      [{ format_id: '140', vcodec: 'none', acodec: 'mp4a.40.2', abr: 128, ext: 'm4a', protocol: 'https' }],
+      30,
+    )
+    const aac = options.find((option) => option.id === 'a-aac-256')!
+    expect(aac.label).toBe('AAC · 256 kbps')
+    expect(aac.audioFormat).toBe('m4a')
+    expect(aac.bitrateKbps).toBe(256)
+    expect(aac.sizeBytes).toBe(Math.round((256 * 1000 * 30) / 8))
+    expect(aac.needsFfmpeg).toBe(true)
+  })
+
   it('flags conversions that need ffmpeg', () => {
     const withSource = buildAudioOptions(
       [{ format_id: '140', vcodec: 'none', acodec: 'mp4a.40.2', abr: 128, ext: 'm4a', protocol: 'https' }],

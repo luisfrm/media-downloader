@@ -15,7 +15,7 @@ const formats: Array<{ id: ConvertSpec['format']; label: string; hint: string }>
   { id: 'mkv', label: 'MKV', hint: 'Sin recodificar' },
   { id: 'webm', label: 'WebM', hint: 'VP9 + Opus' },
   { id: 'mp3', label: 'MP3', hint: '320 kbps' },
-  { id: 'm4a', label: 'M4A', hint: 'AAC 256' },
+  { id: 'm4a', label: 'AAC', hint: 'M4A · 256 kbps' },
   { id: 'wav', label: 'WAV', hint: 'PCM' },
   { id: 'gif', label: 'GIF', hint: '720 px · 15 fps' },
 ]
