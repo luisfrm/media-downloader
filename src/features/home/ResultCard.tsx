@@ -20,7 +20,7 @@ import { IconButton } from '../../components/ui/IconButton'
 import { Segmented } from '../../components/ui/Segmented'
 import { Select } from '../../components/ui/Select'
 import { cn } from '../../lib/cn'
-import { formatBytes, formatCompact, formatDuration, formatUploadDate } from '../../lib/format'
+import { formatBytes, formatCompact, formatDuration, formatUploadDate, playlistCountLabel } from '../../lib/format'
 import { PLATFORMS } from '../../lib/platform'
 import { toPlaylistRanges } from '../../lib/selection'
 import type { AudioOption, DownloadMode, MediaInfo, SubtitleTrack, VideoOption } from '../../lib/types'
@@ -182,7 +182,7 @@ export function ResultCard({ media, onDiscard, onAnalyzePlaylist, playlistLoadin
       tone: 'success',
       title: media.playlist ? 'Playlist en cola' : 'En cola',
       description: media.playlist
-        ? `${playlistSelected.length} videos · ${media.title}`
+        ? `${playlistCountLabel(playlistSelected.length, tab)} · ${media.title}`
         : media.title,
     })
     onDiscard()
@@ -676,7 +676,7 @@ export function ResultCard({ media, onDiscard, onAnalyzePlaylist, playlistLoadin
               : tab === 'thumbnail'
                 ? 'JPG'
                 : media.playlist
-                  ? `${playlistSelected.length} videos`
+                  ? playlistCountLabel(playlistSelected.length, tab)
                   : formatBytes(size)}
           </span>
           <Button variant="ghost" size="md" onClick={onDiscard}>

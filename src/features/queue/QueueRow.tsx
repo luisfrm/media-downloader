@@ -12,7 +12,7 @@ import { Chip } from '../../components/ui/Chip'
 import { IconButton } from '../../components/ui/IconButton'
 import { Progress } from '../../components/ui/Progress'
 import { cn } from '../../lib/cn'
-import { formatBytes, formatEta, formatSpeed } from '../../lib/format'
+import { formatBytes, formatEta, formatSpeed, playlistCountLabel } from '../../lib/format'
 import type { DownloadJob } from '../../lib/types'
 import { useDownloadsStore } from '../../store/useDownloadsStore'
 
@@ -102,7 +102,7 @@ export function QueueRow({ job }: { job: DownloadJob }) {
             <span className="truncate text-[12px] text-ink">{job.title}</span>
             {job.playlistTotal ? (
               <Chip tone="neutral" className="hidden shrink-0 sm:inline-flex">
-                {job.playlistTotal} videos
+                {playlistCountLabel(job.playlistTotal, job.mode)}
               </Chip>
             ) : null}
           </div>

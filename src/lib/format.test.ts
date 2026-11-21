@@ -1,5 +1,13 @@
 import { describe, expect, it } from 'vitest'
-import { formatBytes, formatCompact, formatDuration, formatEta, formatSpeed, truncateMiddle } from './format'
+import {
+  formatBytes,
+  formatCompact,
+  formatDuration,
+  formatEta,
+  formatSpeed,
+  playlistCountLabel,
+  truncateMiddle,
+} from './format'
 
 describe('formatBytes', () => {
   it('formats bytes with Spanish decimal separator', () => {
@@ -55,5 +63,15 @@ describe('truncateMiddle', () => {
   it('keeps both ends of long paths', () => {
     expect(truncateMiddle('abcdefghij', 5)).toBe('ab…ij')
     expect(truncateMiddle('short', 10)).toBe('short')
+  })
+})
+
+describe('playlistCountLabel', () => {
+  it('uses the unit that matches the download mode', () => {
+    expect(playlistCountLabel(3, 'audio')).toBe('3 audios')
+    expect(playlistCountLabel(1, 'audio')).toBe('1 audio')
+    expect(playlistCountLabel(2, 'video')).toBe('2 videos')
+    expect(playlistCountLabel(1, 'thumbnail')).toBe('1 miniatura')
+    expect(playlistCountLabel(4, 'subtitles')).toBe('4 subtítulos')
   })
 })

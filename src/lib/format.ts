@@ -1,3 +1,5 @@
+import type { DownloadMode } from './types'
+
 const ES = 'es-ES'
 
 export function formatBytes(bytes?: number | null, decimals?: number): string {
@@ -85,6 +87,18 @@ export function truncateMiddle(value: string, max = 46): string {
   if (value.length <= max) return value
   const keep = Math.floor((max - 1) / 2)
   return `${value.slice(0, keep)}…${value.slice(-keep)}`
+}
+
+const PLAYLIST_UNITS: Record<DownloadMode, [string, string]> = {
+  video: ['video', 'videos'],
+  audio: ['audio', 'audios'],
+  thumbnail: ['miniatura', 'miniaturas'],
+  subtitles: ['subtítulo', 'subtítulos'],
+}
+
+export function playlistCountLabel(count: number, mode: DownloadMode): string {
+  const [one, many] = PLAYLIST_UNITS[mode] ?? PLAYLIST_UNITS.video
+  return `${count} ${count === 1 ? one : many}`
 }
 
 export function timeAgo(createdAt: number): string {
