@@ -72,11 +72,7 @@ async function ensureFfmpeg() {
     )
     const extracted = path.join(tmpDir, 'ffmpeg-extracted')
     rmSync(extracted, { recursive: true, force: true })
-    execFileSync('powershell', [
-      '-NoProfile',
-      '-Command',
-      `Expand-Archive -LiteralPath '${archive}' -DestinationPath '${extracted}' -Force`,
-    ])
+    extractZip(archive, extracted)
     const found = findFile(extracted, 'ffmpeg.exe')
     if (!found) throw new Error('No se encontró ffmpeg.exe dentro del archivo descargado')
     moveFile(found, target)
@@ -143,6 +139,27 @@ function moveFile(source, target) {
   // renameSync falla con EXDEV al cruzar dispositivos; copy + unlink es seguro.
   copyFileSync(source, target)
   unlinkSync(source)
+}
+
+function extractZip(archive, destination) {
+  mkdirSync(destination, { recursive: true })
+  try {
+    // bsdtar viene con Windows 10+ y también en los runners de GitHub.
+    execFileSync('tar', ['-xf', archive, '-C', destination], { windowsHide: true })
+  } catch {
+    // Fallback para equipos sin tar: ZipFile en vez de Expand-Archive, que
+    // falla con "Cannot find an overload for ExtractToDirectory" en PS 7.
+    const quote = (value) => `'${value.replace(/'/g, "''")}'`
+    execFileSync(
+      'powershell',
+      [
+        '-NoProfile',
+        '-Command',
+        `Add-Type -AssemblyName System.IO.Compression.FileSystem; [System.IO.Compression.ZipFile]::ExtractToDirectory(${quote(archive)}, ${quote(destination)})`,
+      ],
+      { windowsHide: true },
+    )
+  }
 }
 
 function findFile(directory, name) {
