@@ -62,7 +62,7 @@ export function ResultCard({ media, onDiscard, onAnalyzePlaylist, playlistLoadin
   const [embedMeta, setEmbedMeta] = useState(settings.embedMetadata)
   const [subFormat, setSubFormat] = useState<'srt' | 'vtt'>('srt')
   const [subEmbed, setSubEmbed] = useState(false)
-  const [playlistOpen, setPlaylistOpen] = useState(false)
+  const [playlistOpen, setPlaylistOpen] = useState(Boolean(media.playlist))
   const [selected, setSelected] = useState<Set<string>>(
     () => new Set(media.playlist?.entries.map((entry) => entry.id) ?? []),
   )
@@ -104,6 +104,7 @@ export function ResultCard({ media, onDiscard, onAnalyzePlaylist, playlistLoadin
     if (!canSubmit) return
 
     const allSelected = media.playlist ? playlistSelected.length === media.playlist.entries.length : true
+    const filterPlaylist = Boolean(media.playlist && (!allSelected || media.playlist.truncated))
     const spec: DownloadSpec = {
       url: media.url,
       outputDir: settings.downloadDir,
@@ -120,7 +121,7 @@ export function ResultCard({ media, onDiscard, onAnalyzePlaylist, playlistLoadin
       concurrency: 4,
       playlist: Boolean(media.playlist),
       playlistItems:
-        media.playlist && !allSelected
+        media.playlist && filterPlaylist
           ? toPlaylistRanges(playlistSelected.map((entry) => entry.index + 1))
           : undefined,
     }
@@ -312,7 +313,11 @@ export function ResultCard({ media, onDiscard, onAnalyzePlaylist, playlistLoadin
                 disabled={playlistLoading}
                 className="ml-auto inline-flex items-center gap-1 text-[10.5px] text-cyan/80 transition-colors hover:text-cyan disabled:opacity-50"
               >
-                {playlistLoading ? 'Leyendo playlist…' : 'Analizar playlist completa'}
+                {playlistLoading
+                  ? 'Leyendo playlist…'
+                  : media.playlist?.truncated
+                    ? 'Cargar playlist completa'
+                    : 'Analizar playlist completa'}
                 <ChevronDown className="size-3 -rotate-90" />
               </button>
             ) : null}
@@ -332,38 +337,88 @@ export function ResultCard({ media, onDiscard, onAnalyzePlaylist, playlistLoadin
             <ListVideo className="size-3.5 text-ink-3" strokeWidth={1.8} />
             <span className="text-[11.5px] text-ink-2">Contenido de la playlist</span>
             <span className="font-mono text-[10px] text-ink-3">{selected.size}/{media.playlist.entries.length}</span>
+            {media.playlist.truncated ? (
+              <span className="font-mono text-[10px] text-amber/80">
+                · {media.playlist.entries.length} de {media.playlist.count}
+              </span>
+            ) : null}
             <ChevronDown
               className={cn('ml-auto size-3.5 text-ink-3 transition-transform', playlistOpen && 'rotate-180')}
             />
           </button>
 
           {playlistOpen ? (
-            <div className="max-h-44 overflow-y-auto border-t border-line">
-              {media.playlist.entries.map((entry) => (
-                <label
-                  key={entry.id}
-                  className="flex h-8 cursor-pointer items-center gap-2 px-2.5 transition-colors hover:bg-white/[0.03]"
-                >
-                  <Checkbox
-                    checked={selected.has(entry.id)}
-                    onChange={() => togglePlaylist(entry.id)}
-                    label={`Seleccionar ${entry.title}`}
-                  />
-                  <span className="w-6 shrink-0 font-mono text-[10px] text-ink-3">{entry.index + 1}</span>
-                  <span className="min-w-0 flex-1 truncate text-[11.5px] text-ink-2">{entry.title}</span>
-                  <span className="shrink-0 font-mono text-[10px] text-ink-3">
-                    {entry.durationSec ? formatDuration(entry.durationSec) : '—'}
-                  </span>
-                </label>
-              ))}
+            <div className="max-h-64 overflow-y-auto border-t border-line">
+              {media.playlist.entries.map((entry) => {
+                const checked = selected.has(entry.id)
+                return (
+                  <div
+                    key={entry.id}
+                    role="checkbox"
+                    aria-checked={checked}
+                    aria-label={`Seleccionar ${entry.title}`}
+                    tabIndex={0}
+                    onClick={() => togglePlaylist(entry.id)}
+                    onKeyDown={(event) => {
+                      if (event.key === 'Enter' || event.key === ' ') {
+                        event.preventDefault()
+                        togglePlaylist(entry.id)
+                      }
+                    }}
+                    className="flex h-10 cursor-pointer items-center gap-2 px-2.5 transition-colors hover:bg-white/[0.03] focus-visible:bg-white/[0.05] focus-visible:outline-none"
+                  >
+                    <span
+                      aria-hidden
+                      className={cn(
+                        'grid size-[15px] shrink-0 place-items-center rounded-[4px] border transition-colors duration-150',
+                        checked ? 'border-cyan/60 bg-cyan/20 text-cyan' : 'border-line-strong bg-bg/60',
+                      )}
+                    >
+                      {checked ? <Check className="size-2.5" strokeWidth={3} /> : null}
+                    </span>
+                    <span className="w-6 shrink-0 font-mono text-[10px] text-ink-3">{entry.index + 1}</span>
+                    <span className="h-7 w-12 shrink-0 overflow-hidden rounded-[3px] border border-line bg-bg">
+                      {entry.thumbnail ? (
+                        <img
+                          src={entry.thumbnail}
+                          alt=""
+                          className="size-full object-cover"
+                          loading="lazy"
+                          referrerPolicy="no-referrer"
+                        />
+                      ) : null}
+                    </span>
+                    <span className="min-w-0 flex-1 truncate text-[11.5px] text-ink-2">{entry.title}</span>
+                    {entry.author ? (
+                      <span className="hidden max-w-[120px] shrink-0 truncate text-[10px] text-ink-3 md:inline">
+                        {entry.author}
+                      </span>
+                    ) : null}
+                    <span className="shrink-0 font-mono text-[10px] text-ink-3">
+                      {entry.durationSec ? formatDuration(entry.durationSec) : '—'}
+                    </span>
+                  </div>
+                )
+              })}
             </div>
           ) : null}
 
-          <div className="flex items-center justify-between border-t border-line px-2.5 py-1.5">
-            <span className="text-[10px] text-ink-3">
-              Se descargan en orden, uno por vez
-            </span>
-            <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center justify-between gap-2 border-t border-line px-2.5 py-1.5">
+            {media.playlist.truncated && onAnalyzePlaylist ? (
+              <button
+                type="button"
+                onClick={onAnalyzePlaylist}
+                disabled={playlistLoading}
+                className="text-[10.5px] text-cyan/80 transition-colors hover:text-cyan disabled:opacity-50"
+              >
+                {playlistLoading
+                  ? 'Leyendo playlist…'
+                  : `Cargar ${media.playlist.count - media.playlist.entries.length} restantes`}
+              </button>
+            ) : (
+              <span className="text-[10px] text-ink-3">Se descargan en orden, uno por vez</span>
+            )}
+            <div className="flex flex-wrap items-center gap-1.5">
               <button
                 type="button"
                 onClick={() =>
@@ -375,22 +430,26 @@ export function ResultCard({ media, onDiscard, onAnalyzePlaylist, playlistLoadin
               >
                 Primeros 50
               </button>
-              <span className="text-ink-3/40">·</span>
-              <button
-                type="button"
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-6 px-1.5 text-[10.5px]"
+                disabled={selected.size === media.playlist.entries.length}
                 onClick={() => setSelected(new Set(media.playlist?.entries.map((entry) => entry.id) ?? []))}
-                className="text-[10.5px] text-ink-3 transition-colors hover:text-ink-2"
               >
-                Todos
-              </button>
-              <span className="text-ink-3/40">·</span>
-              <button
-                type="button"
+                <Check className="size-3" strokeWidth={2.4} />
+                Seleccionar todos
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-6 px-1.5 text-[10.5px]"
+                disabled={selected.size === 0}
                 onClick={() => setSelected(new Set())}
-                className="text-[10.5px] text-ink-3 transition-colors hover:text-ink-2"
               >
-                Ninguno
-              </button>
+                <X className="size-3" strokeWidth={2.2} />
+                Deseleccionar todos
+              </Button>
             </div>
           </div>
         </div>

@@ -8,7 +8,8 @@ export const PROGRESS_TEMPLATE =
 
 export interface ProbeOptions {
   playlist?: boolean
-  playlistLimit?: number
+  /** `null` loads the whole playlist; omit to keep the default preview limit. */
+  playlistLimit?: number | null
   cookiesFromBrowser?: Settings['cookiesFromBrowser']
 }
 
@@ -19,7 +20,10 @@ export function buildProbeArgs(url: string, options: ProbeOptions = {}): string[
   }
   args.push('-J')
   if (options.playlist) {
-    args.push('--flat-playlist', '--playlist-end', String(options.playlistLimit ?? 200))
+    args.push('--flat-playlist', '--ignore-errors')
+    if (options.playlistLimit !== null) {
+      args.push('--playlist-end', String(options.playlistLimit ?? 200))
+    }
   } else {
     args.push('--no-playlist')
   }

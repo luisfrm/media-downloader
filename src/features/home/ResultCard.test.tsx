@@ -134,4 +134,71 @@ describe('ResultCard', () => {
     const args = vi.mocked(engine.startDownload).mock.calls[0]![1]
     expect(args[args.indexOf('--remux-video') + 1]).toBe('mkv')
   })
+
+  it('lists playlist items and downloads only the checked ones', async () => {
+    const user = userEvent.setup()
+    const playlistMedia = normalizeMedia(
+      {
+        _type: 'playlist',
+        id: 'PL1',
+        title: 'Playlist de prueba',
+        uploader: 'Canal',
+        webpage_url: 'https://www.youtube.com/playlist?list=PL1',
+        playlist_count: 3,
+        entries: [
+          { id: 'a', title: 'Uno', url: 'https://www.youtube.com/watch?v=a', duration: 60, uploader: 'Canal' },
+          { id: 'b', title: 'Dos', url: 'https://www.youtube.com/watch?v=b', duration: 90, uploader: 'Otro' },
+          { id: 'c', title: 'Tres', url: 'https://www.youtube.com/watch?v=c', duration: 120, uploader: 'Canal' },
+        ],
+      } as unknown as RawInfo,
+      { hasFfmpeg: true, preferredQuality: 'best', platformHint: 'youtube' },
+    )
+
+    render(<ResultCard media={playlistMedia} onDiscard={vi.fn()} />)
+    expect(screen.getByText('Contenido de la playlist')).toBeInTheDocument()
+    expect(screen.getByRole('checkbox', { name: 'Seleccionar Uno' })).toBeChecked()
+
+    await user.click(screen.getByRole('button', { name: 'Deseleccionar todos' }))
+    expect(screen.getByRole('checkbox', { name: 'Seleccionar Uno' })).not.toBeChecked()
+    expect(screen.getByRole('button', { name: 'Descargar 0' })).toBeDisabled()
+
+    await user.click(screen.getByRole('button', { name: 'Seleccionar todos' }))
+    expect(screen.getByRole('checkbox', { name: 'Seleccionar Uno' })).toBeChecked()
+
+    await user.click(screen.getByRole('checkbox', { name: 'Seleccionar Dos' }))
+    await user.click(screen.getByRole('button', { name: 'Descargar 2' }))
+
+    const args = vi.mocked(engine.startDownload).mock.calls[0]![1]
+    expect(args).toContain('--yes-playlist')
+    expect(args[args.indexOf('--playlist-items') + 1]).toBe('1,3')
+    expect(useDownloadsStore.getState().jobs[0]!.playlistTotal).toBe(2)
+  })
+
+  it('limits a truncated playlist download to the loaded items', async () => {
+    const user = userEvent.setup()
+    const playlistMedia = normalizeMedia(
+      {
+        _type: 'playlist',
+        id: 'PL2',
+        title: 'Playlist larga',
+        uploader: 'Canal',
+        webpage_url: 'https://www.youtube.com/playlist?list=PL2',
+        playlist_count: 5,
+        entries: [
+          { id: 'a', title: 'Uno', url: 'https://www.youtube.com/watch?v=a', duration: 60 },
+          { id: 'b', title: 'Dos', url: 'https://www.youtube.com/watch?v=b', duration: 90 },
+          { id: 'c', title: 'Tres', url: 'https://www.youtube.com/watch?v=c', duration: 120 },
+        ],
+      } as unknown as RawInfo,
+      { hasFfmpeg: true, preferredQuality: 'best', platformHint: 'youtube' },
+    )
+
+    render(<ResultCard media={playlistMedia} onDiscard={vi.fn()} onAnalyzePlaylist={vi.fn()} />)
+    expect(screen.getByRole('button', { name: 'Cargar 2 restantes' })).toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: 'Descargar 3' }))
+
+    const args = vi.mocked(engine.startDownload).mock.calls[0]![1]
+    expect(args[args.indexOf('--playlist-items') + 1]).toBe('1-3')
+  })
 })

@@ -22,8 +22,15 @@ describe('buildProbeArgs', () => {
   it('adds flat playlist flags', () => {
     const args = buildProbeArgs(url, { playlist: true, playlistLimit: 50 })
     expect(args).toContain('--flat-playlist')
+    expect(args).toContain('--ignore-errors')
     expect(args).toContain('--playlist-end')
     expect(args[args.indexOf('--playlist-end') + 1]).toBe('50')
+  })
+
+  it('omits the playlist limit when the whole list is requested', () => {
+    const args = buildProbeArgs(url, { playlist: true, playlistLimit: null })
+    expect(args).toContain('--flat-playlist')
+    expect(args).not.toContain('--playlist-end')
   })
 
   it('reads cookies when configured', () => {

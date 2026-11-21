@@ -11,7 +11,7 @@ import * as engine from '../../lib/engine'
 import { buildProbeArgs } from '../../lib/ytdlp'
 import { normalizeMedia } from '../../lib/probe'
 import { detectPlatform, looksLikeUrl, normalizeUrl } from '../../lib/platform'
-import { friendlyProbeError, hasPlaylistParam } from '../../lib/errors'
+import { friendlyProbeError, hasPlaylistParam, isPlaylistOnlyUrl } from '../../lib/errors'
 import type { MediaInfo, Platform, RawInfo } from '../../lib/types'
 
 export function HomePage() {
@@ -34,7 +34,7 @@ export function HomePage() {
   const engineMissing = Boolean(capabilities && !capabilities.ytdlp)
 
   const analyze = useCallback(
-    async (rawUrl?: string, playlist = false) => {
+    async (rawUrl?: string, playlist?: boolean, playlistLimit?: number | null) => {
       const source = normalizeUrl(rawUrl ?? url)
       if (!source) {
         setError('Pegá un enlace primero.')
@@ -51,6 +51,9 @@ export function HomePage() {
         return
       }
 
+      // Playlist URLs should be read as a list from the start; probing them as a
+      // single video forces yt-dlp to resolve every entry's formats first.
+      const asPlaylist = playlist ?? isPlaylistOnlyUrl(source)
       if (playlist) setPlaylistLoading(true)
       else setLoading(true)
       setError(null)
@@ -59,7 +62,8 @@ export function HomePage() {
       try {
         const raw = (await engine.probe(
           buildProbeArgs(source, {
-            playlist,
+            playlist: asPlaylist,
+            playlistLimit,
             cookiesFromBrowser: settings.cookiesFromBrowser,
           }),
         )) as RawInfo
@@ -192,6 +196,8 @@ export function HomePage() {
   const suggestPlaylist = Boolean(
     probe && !probe.playlist && hasPlaylistParam(probe.url || url),
   )
+  const playlistTruncated = Boolean(probe?.playlist?.truncated)
+  const canLoadFullPlaylist = suggestPlaylist || playlistTruncated
 
   return (
     <div className="mx-auto w-full max-w-[1060px] px-6 py-5">
@@ -265,10 +271,14 @@ export function HomePage() {
       {probe && !loading ? (
         <div className="mt-4">
           <ResultCard
-            key={probe.id}
+            key={`${probe.id}-${probe.playlist?.entries.length ?? 0}-${probe.playlist?.truncated ? 'partial' : 'full'}`}
             media={probe}
             onDiscard={reset}
-            onAnalyzePlaylist={suggestPlaylist ? () => void analyze(probe.url || url, true) : undefined}
+            onAnalyzePlaylist={
+              canLoadFullPlaylist
+                ? () => void analyze(probe.url || url, true, null)
+                : undefined
+            }
             playlistLoading={playlistLoading}
           />
         </div>

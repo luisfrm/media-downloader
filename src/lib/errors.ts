@@ -30,3 +30,18 @@ export function friendlyProbeError(raw: string): string {
 export function hasPlaylistParam(url: string): boolean {
   return /[?&]list=|[?&]playlist=|\/playlist\b/i.test(url)
 }
+
+/**
+ * True when the link points to a playlist itself, not to a video that belongs
+ * to one. In that case probing it as a single video is slow and loses the list.
+ */
+export function isPlaylistOnlyUrl(url: string): boolean {
+  try {
+    const parsed = new URL(url)
+    const list = parsed.searchParams.get('list') ?? parsed.searchParams.get('playlist')
+    const video = parsed.searchParams.get('v')
+    return Boolean(list && !video) || /\/playlist\/?$/i.test(parsed.pathname)
+  } catch {
+    return false
+  }
+}

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { friendlyProbeError, hasPlaylistParam } from './errors'
+import { friendlyProbeError, hasPlaylistParam, isPlaylistOnlyUrl } from './errors'
 
 describe('friendlyProbeError', () => {
   it('maps unsupported urls', () => {
@@ -28,5 +28,15 @@ describe('hasPlaylistParam', () => {
     expect(hasPlaylistParam('https://www.youtube.com/watch?v=abc&list=PL123')).toBe(true)
     expect(hasPlaylistParam('https://www.youtube.com/playlist?list=PL123')).toBe(true)
     expect(hasPlaylistParam('https://x.com/user/status/1')).toBe(false)
+  })
+})
+
+describe('isPlaylistOnlyUrl', () => {
+  it('treats playlist pages as lists and watch links as videos', () => {
+    expect(isPlaylistOnlyUrl('https://www.youtube.com/playlist?list=PL123')).toBe(true)
+    expect(isPlaylistOnlyUrl('https://music.youtube.com/playlist?list=PL123')).toBe(true)
+    expect(isPlaylistOnlyUrl('https://www.youtube.com/watch?v=abc&list=PL123')).toBe(false)
+    expect(isPlaylistOnlyUrl('https://www.youtube.com/watch?v=abc')).toBe(false)
+    expect(isPlaylistOnlyUrl('not a url')).toBe(false)
   })
 })
